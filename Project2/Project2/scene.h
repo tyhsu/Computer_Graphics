@@ -6,7 +6,7 @@
 #include <string>
 using namespace std;
 
-class TextureMap;
+class Textures;
 
 class Model
 {
@@ -32,24 +32,22 @@ public:
 	Vec3 rotate_;
 	Vec3 transfer_;
 
-	TextureMap texture_;
+	size_t texID_;				//record the index in texList_
 };
 
-class TextureMap
+class Textures
 {
 public:
 	int technique_;
 	size_t imageTotal_;
-	vector<string> imageList_;	//list of image file name
-
-	void reset();
+	vector<string> imageList_;	//list of image file names
 };
 
 class Scene
 {
 public:
 	size_t texTotal_;
-	vector<TextureMap> texList_;
+	vector<Textures> texList_;
 	size_t modelTotal_;
 	vector<Model> modelList_;	//list of models
 

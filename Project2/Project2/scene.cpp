@@ -24,7 +24,6 @@ void Scene::loadScene(const char * sceneFile)
 	FILE* data;
 	char token[100], buf[100];
 	double v[3];
-	TextureMap ttmp;
 		
 	data = fopen(sceneFile, "r");
 	if (!data) {
@@ -48,42 +47,42 @@ void Scene::loadScene(const char * sceneFile)
 			m.transfer_.set(v);
 			cout << m.objFile_ << endl;
 
-			m.texture_ = ttmp;
+			m.texID_ = texList_.size() - 1;	// the index in texList_
 			modelList_.push_back(m);
 		}
 		else if (strcmp(token, "no-texture") == 0) {
-			ttmp.reset();
-			ttmp.technique_ = 0;
-			ttmp.imageTotal_ = 0;
-			texList_.push_back(ttmp);
+			Textures t;
+			t.technique_ = 0;
+			t.imageTotal_ = 0;
+			texList_.push_back(t);
 		}
 		else if (strcmp(token, "single-texture") == 0) {
-			ttmp.reset();
-			ttmp.technique_ = 1;
-			ttmp.imageTotal_ = 1;
+			Textures t;
+			t.technique_ = 1;
+			t.imageTotal_ = 1;
 			fscanf(data, "%s", buf);
-			ttmp.imageList_.push_back(buf);
-			texList_.push_back(ttmp);
+			t.imageList_.push_back(buf);
+			texList_.push_back(t);
 		}
 		else if (strcmp(token, "multi-texture") == 0) {
-			ttmp.reset();
-			ttmp.technique_ = 2;
-			ttmp.imageTotal_ = 2;
-			for (size_t i = 0; i < ttmp.imageTotal_; i++) {
+			Textures t;
+			t.technique_ = 2;
+			t.imageTotal_ = 2;
+			for (size_t i = 0; i < t.imageTotal_; i++) {
 				fscanf(data, "%s", buf);
-				ttmp.imageList_.push_back(buf);
+				t.imageList_.push_back(buf);
 			}
-			texList_.push_back(ttmp);
+			texList_.push_back(t);
 		}
 		else if (strcmp(token, "cube-map") == 0) {
-			ttmp.reset();
-			ttmp.technique_ = 3;
-			ttmp.imageTotal_ = 6;
-			for (size_t i = 0; i < ttmp.imageTotal_; i++) {
+			Textures t;
+			t.technique_ = 3;
+			t.imageTotal_ = 6;
+			for (size_t i = 0; i < t.imageTotal_; i++) {
 				fscanf(data, "%s", buf);
-				ttmp.imageList_.push_back(buf);
+				t.imageList_.push_back(buf);
 			}
-			texList_.push_back(ttmp);
+			texList_.push_back(t);
 		}
 	}
 
@@ -92,13 +91,4 @@ void Scene::loadScene(const char * sceneFile)
 	modelTotal_ = modelList_.size();
 	
 	printf("total models: %lu\n", texTotal_);
-}
-
-void TextureMap::reset()
-{
-	technique_ = 0;
-	imageTotal_ = 0;
-	imageList_.clear();
-	modelTotal_ = 0;
-	modelList_.clear();
 }

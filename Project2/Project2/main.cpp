@@ -61,8 +61,11 @@ int main(int argc, char** argv)
 	glewInit();
 	FreeImage_Initialise();
 	glGenTextures(NUM_TEXTURE, texObject);
-	for (size_t i=0; i<NUM_TEXTURE; i++)
-		loadTexture(texFiles[i], i);
+	size_t texNo = 0;
+	// if using cube-map, need to use another function to load textures
+	for (vector<Textures>::iterator it=scene->texList_.begin(); it!=scene->texList_.end(); it++)
+		for (vector<string>::iterator jt=it->imageList_.begin(); jt!=it->imageList_.end(); jt++)
+			loadTexture(*jt, texNo++);
 	cout << endl << "-------------------- finish loading textures --------------------" << endl;
 	FreeImage_DeInitialise();
 
