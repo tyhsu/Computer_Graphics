@@ -5,7 +5,7 @@
 #include "mesh.h"
 #include <iostream>
 
-const char* obj_database = "";	// ©w¸q mesh ªº¹w³]¥Ø¿ý
+const char* obj_database = "";	// the default directory for mesh files
 
 using namespace std;
 
@@ -34,11 +34,11 @@ Mesh::~Mesh()
 void Mesh::loadMesh(string objFile)
 {
 	FILE	*scene;
-	char	token[100], buf[100], v[5][100];	// v[5] ªí¥Ü¤@­Ó polygon ³Ì¦h¥i¥H¦³ 5­Ó vertex
+	char	token[100], buf[100], v[5][100];	// v[5] => a polygon has at most 5 vertices
 	float	vec[3];
 
 	size_t	n_vertex, n_texture, n_normal;
-	size_t	cur_mtl = 0;				// state variable: ¥Ø«e©Ò¨Ï¥Îªº Material
+	size_t	cur_mtl = 0;				// state variable: the Material currently used
 
 	scene = fopen(objFile.c_str(),"r");
 	objFile_ = objFile;
@@ -54,7 +54,7 @@ void Mesh::loadMesh(string objFile)
 	while(!feof(scene))
 	{
 		token[0] = NULL;
-		fscanf(scene,"%s", token);		// Åª token
+		fscanf(scene,"%s", token);		// read a token
 
 		if (!strcmp(token,"g"))
 		{
@@ -95,7 +95,7 @@ void Mesh::loadMesh(string objFile)
 		else if (!strcmp(token,"f"))
 		{
 			size_t i;
-			for (i=0;i<3;i++)		// face ¹w³]¬° 3¡A°²³]¤@­Ó polygon ³£¥u¦³ 3 ­Ó vertex
+			for (i=0;i<3;i++)		// face default value: 3, assume that a polygon has only 3 vertices
 			{
 				fscanf(scene,"%s",v[i]);
 				//printf("[%s]",v[i]);
@@ -128,7 +128,7 @@ void Mesh::loadMesh(string objFile)
 					offset++;
 				}
 				str[offset] = '\0';
-				n_texture = atoi(str);	// case: xxx//zzz¡Atexture ³]¬° 0 (tList_ ±q 1 ¶}©l)
+				n_texture = atoi(str);	// case: xxx//zzzï¼Œtexture is set to 0 (tList_ starts from 1)
 				base += (ch == '\0')? offset : offset+1;
 				offset = 0;
 
@@ -139,7 +139,7 @@ void Mesh::loadMesh(string objFile)
 					offset++;
 				}
 				str[offset] = '\0';
-				n_normal = atoi(str);	// case: xxx/yyy¡Anormal ³]¬° 0 (nList_ ±q 1 ¶}©l)
+				n_normal = atoi(str);	// case: xxx/yyyï¼Œnormal is set to 0 (nList_ starts from 1)
 
 				tmp_vertex[i].v = n_vertex;
 				tmp_vertex[i].t = n_texture;
@@ -149,7 +149,7 @@ void Mesh::loadMesh(string objFile)
 			faceList_.push_back(Face(tmp_vertex[0],tmp_vertex[1],tmp_vertex[2], cur_mtl));
 		}
 
-		else if (!strcmp(token,"#"))	  // µù¸Ñ
+		else if (!strcmp(token,"#"))	  // comments
 			fgets(buf,100,scene);
 
 //		printf("[%s]\n",token);
@@ -184,13 +184,13 @@ void Mesh::loadMtl(string tex_file)
 	while(!feof(mtlFilePtr_))
 	{
 		token[0] = NULL;
-		fscanf(mtlFilePtr_,"%s", token);		// Åª token
+		fscanf(mtlFilePtr_,"%s", token);		// read a token
 
 		if (!strcmp(token,"newmtl")) {
 			fscanf(mtlFilePtr_,"%s",buf);
 			Material newMtl;
 			mList_.push_back(newMtl);
-			cur_mat = mTotal_++;					// ±q mList_[1] ¶}©l¡AmList_[0] ªÅ¤U¨Óµ¹ default Material ¥Î
+			cur_mat = mTotal_++;					// starts from mList_[1], mList_[0] is used for default Material
 			matMap_[objFile_+string("_")+string(buf)] = cur_mat; 	// matMap_["Material_name"] = Material_id;
 		}
 
@@ -265,7 +265,7 @@ void Mesh::loadMtl(string tex_file)
 			mList_[cur_mat].map_Ka = buf;
 		}
 
-		else if (!strcmp(token,"#"))	  // µù¸Ñ
+		else if (!strcmp(token,"#"))	  // comments
 			fgets(buf,100,mtlFilePtr_);
 
 //		printf("[%s]\n",token);
@@ -280,19 +280,19 @@ void Mesh::init(const char* objFile)
 {
 	float default_value[3] = {1,1,1};
 
-	vList_.push_back(Vec3(default_value));	// ¦]¬° *.obj ªº index ¬O±q 1 ¶}©l
-	nList_.push_back(Vec3(default_value));	// ©Ò¥H­n¥ý push ¤@­Ó default value ¨ì vList_[0],nList_[0],tList_[0]
+	vList_.push_back(Vec3(default_value));	// because the index of *.obj starts from 1
+	nList_.push_back(Vec3(default_value));	// so have to push a default value into vList_[0], nList_[0], tList_[0]
 	tList_.push_back(Vec3(default_value));
 
 	Material defaultMtl;
 	mList_.push_back(defaultMtl);
-	// ©w¸q default meterial: mList_[0]
+	// set the default meterial: mList_[0]
 	mList_[0].Ka[0] = 0.0f; mList_[0].Ka[1] = 0.0f; mList_[0].Ka[2] = 0.0f; mList_[0].Ka[3] = 1.0f; 
 	mList_[0].Kd[0] = 1.0f; mList_[0].Kd[1] = 1.0f; mList_[0].Kd[2] = 1.0f; mList_[0].Kd[3] = 1.0f; 
 	mList_[0].Ks[0] = 0.8f; mList_[0].Ks[1] = 0.8f; mList_[0].Ks[2] = 0.8f; mList_[0].Ks[3] = 1.0f;
 	mList_[0].Ns = 32.0f;
 	mTotal_++;
 
-	loadMesh(string(objFile));		// Åª¤J .obj ÀÉ (¥i³B²z Material)
+	loadMesh(string(objFile));		// load *.obj files (can deal with Material)
 }
 
