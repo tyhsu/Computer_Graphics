@@ -25,6 +25,7 @@ size_t selectObj = 0;
 int preMouseX = 250, preMouseY = 250;
 double movCamUnit = 5.0, movObjUnit = 25;
 
+void viewing();
 void lighting();
 void loadTexture(char* textureFile, size_t k);
 void display();
@@ -74,6 +75,24 @@ int main(int argc, char** argv)
 	return 0;
 }
 
+void viewing()
+{
+	// viewport transformation
+	glViewport((GLint)view->x_, (GLint)view->y_, (GLsizei)view->width_, (GLsizei)view->height_);
+
+	// projection transformation
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective((GLdouble)view->fovy_, (GLfloat)winWidth / (GLfloat)winHeight, (GLdouble)view->dnear_, (GLdouble)view->dfar_);
+
+	// viewing and modeling transformation
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt((GLdouble)view->eye_[0], (GLdouble)view->eye_[1], (GLdouble)view->eye_[2],	// eye
+		(GLdouble)view->vat_[0], (GLdouble)view->vat_[1], (GLdouble)view->vat_[2],			// center
+		(GLdouble)view->vup_[0], (GLdouble)view->vup_[1], (GLdouble)view->vup_[2]);			// up
+}
+
 void lighting()
 {
 	glShadeModel(GL_SMOOTH);
@@ -108,6 +127,7 @@ void loadTexture(char* textureFile, size_t k)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, iWidth, iHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage));
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glGenerateMipmap(GL_TEXTURE_2D);
 
 	FreeImage_Unload(t32BitsImage);
 	FreeImage_Unload(tImage);
@@ -122,67 +142,53 @@ void display()
 	glDepthFunc(GL_LEQUAL);                    // The Type Of Depth Test To Do
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// this makes the scene black and clears the z buffer
 
-	// viewport transformation
-	glViewport((GLint)view->x_, (GLint)view->y_, (GLsizei)view->width_, (GLsizei)view->height_);
-
-	// projection transformation
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective((GLdouble)view->fovy_, (GLfloat)winWidth/(GLfloat)winHeight, (GLdouble)view->dnear_, (GLdouble)view->dfar_);
-	
-	// viewing and modeling transformation
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(	(GLdouble)view->eye_[0], (GLdouble)view->eye_[1], (GLdouble)view->eye_[2],		// eye
-				(GLdouble)view->vat_[0], (GLdouble)view->vat_[1], (GLdouble)view->vat_[2],		// center
-				(GLdouble)view->vup_[0], (GLdouble)view->vup_[1], (GLdouble)view->vup_[2] );	// up
-
+	viewing();
 	// note that light should be set after gluLookAt
 	lighting();
 
 	// draw objects listed in the scene file on the screen
-	for (vector<Model>::iterator it=scene->mList_.begin(); it!=scene->mList_.end(); it++) {
+	for (vector<Model>::iterator jt = scene->modelList_.begin(); jt != scene->modelList_.end(); jt++) {
 		glPushMatrix();
 			// find the selected mesh in the scene file
 			Mesh* obj = nullptr;
-			for (vector<Mesh>::iterator jt=objects.begin(); jt!=objects.end(); jt++)
-				if (jt->objFile_ == it->objFile_) {
-					obj = &(*jt);
+			for (vector<Mesh>::iterator kt = objects.begin(); kt != objects.end(); kt++)
+				if (jt->objFile_ == jt->objFile_) {
+					obj = &(*kt);
 					break;
 				}
 			if (obj == nullptr)
-				cout << "Don't have " << it->objFile_ << " in the object files" << endl;
+				cout << "Don't have " << jt->objFile_ << " in the object files" << endl;
 
-			glTranslated((GLdouble)it->transfer_[0], (GLdouble)it->transfer_[1], (GLdouble)it->transfer_[2]);
-			glRotated((GLdouble)it->angle_, (GLdouble)it->rotate_[0], (GLdouble)it->rotate_[1], (GLdouble)it->rotate_[2]);
-			glScaled((GLdouble)it->scale_[0], (GLdouble)it->scale_[1], (GLdouble)it->scale_[2]);
+			glTranslated((GLdouble)jt->transfer_[0], (GLdouble)jt->transfer_[1], (GLdouble)jt->transfer_[2]);
+			glRotated((GLdouble)jt->angle_, (GLdouble)jt->rotate_[0], (GLdouble)jt->rotate_[1], (GLdouble)jt->rotate_[2]);
+			glScaled((GLdouble)jt->scale_[0], (GLdouble)jt->scale_[1], (GLdouble)jt->scale_[2]);
 
 			int lastMaterial = -1;
-			for(size_t i=0; i<obj->fTotal_; ++i) {
+			for (size_t i = 0; i < obj->fTotal_; ++i) {
 				// set material property if this face used different material
-				if(lastMaterial != obj->faceList_[i].m)
-				{
+				if (lastMaterial != obj->faceList_[i].m) {
 					lastMaterial = (int)obj->faceList_[i].m;
-					glMaterialfv(GL_FRONT, GL_AMBIENT  , obj->mList_[lastMaterial].Ka);
-					glMaterialfv(GL_FRONT, GL_DIFFUSE  , obj->mList_[lastMaterial].Kd);
-					glMaterialfv(GL_FRONT, GL_SPECULAR , obj->mList_[lastMaterial].Ks);
+					glMaterialfv(GL_FRONT, GL_AMBIENT, obj->mList_[lastMaterial].Ka);
+					glMaterialfv(GL_FRONT, GL_DIFFUSE, obj->mList_[lastMaterial].Kd);
+					glMaterialfv(GL_FRONT, GL_SPECULAR, obj->mList_[lastMaterial].Ks);
 					glMaterialfv(GL_FRONT, GL_SHININESS, &obj->mList_[lastMaterial].Ns);
 
-					//you can obtain the texture name by it->mList_[lastMaterial].map_Kd
+					//you can obtain the texture name by jt->modelList_[lastMaterial].map_Kd
 					//load them once in the main function before mainloop
 					//bind them in display function here
 				}
 
 				glBegin(GL_TRIANGLES);
-					for (size_t j=0; j<3; ++j) {
-						//textex corrd. it->tList[it->faceList_[i][j].t].ptr
-						glNormal3fv(obj->nList_[ obj->faceList_[i][j].n ].ptr);
-						glVertex3fv(obj->vList_[ obj->faceList_[i][j].v ].ptr);
+					for (size_t j = 0; j < 3; ++j) {
+						//textex corrd. jt->tList[jt->faceList_[i][j].t].ptr
+						glNormal3fv(obj->nList_[obj->faceList_[i][j].n].ptr);
+						glVertex3fv(obj->vList_[obj->faceList_[i][j].v].ptr);
 					}
 				glEnd();
 			}
 		glPopMatrix();
 	}
+	
 	glutSwapBuffers();
 }
 
@@ -227,8 +233,8 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if (key >= '1' && key <= '9') {	// select n-th object
 		selectObj = key - '1';
-		if (selectObj >= scene->mTotal_)
-			selectObj = scene->mTotal_ - 1;
+		if (selectObj >= scene->modelTotal_)
+			selectObj = scene->modelTotal_ - 1;
 		cout << "selected object: " << selectObj + 1 << endl;
 	}
 }
@@ -236,19 +242,19 @@ void keyboard(unsigned char key, int x, int y)
 void drag(int x, int y)
 {
 	if (x > preMouseX) {		// right
-		scene->mList_[selectObj].transfer_[0] += movObjUnit;
+		scene->modelList_[selectObj].transfer_[0] += movObjUnit;
 		cout << "moving object " << selectObj + 1 << " right" << endl;
 	}
 	else if (x < preMouseX) {	// left
-		scene->mList_[selectObj].transfer_[0] -= movObjUnit;
+		scene->modelList_[selectObj].transfer_[0] -= movObjUnit;
 		cout << "moving object " << selectObj + 1 << " left" << endl;
 	}
 	if (y < preMouseY) {		// up
-		scene->mList_[selectObj].transfer_[1] += movObjUnit;
+		scene->modelList_[selectObj].transfer_[1] += movObjUnit;
 		cout << "moving object " << selectObj + 1 << " up" << endl;
 	}
 	else if (y > preMouseY) {	// down
-		scene->mList_[selectObj].transfer_[1] -= movObjUnit;
+		scene->modelList_[selectObj].transfer_[1] -= movObjUnit;
 		cout << "moving object " << selectObj + 1 << " down" << endl;
 	}
 	preMouseX = x;

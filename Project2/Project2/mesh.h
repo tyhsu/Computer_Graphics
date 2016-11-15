@@ -17,9 +17,12 @@ public:
 	float Ka[4];		//ambient coefficient
 	float Kd[4];		//diffuse coefficient
 	float Ks[4];		//specular coefficient
-	float Ns;			//shiness
+	float Tf[4];		//transmission filter
+	float Ns;			//shiness, specular exponent
+	float Ni;			//optical density
 
 	float Tr;			//Transpant (or d)
+	int illum;			//illumination models
 	std::string map_Ka;	//ambient texture
 	std::string map_Kd;	//diffuse texture
 	std::string map_Ks;	//specular texture

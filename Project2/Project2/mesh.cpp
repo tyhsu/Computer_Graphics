@@ -186,8 +186,7 @@ void Mesh::loadMtl(string tex_file)
 		token[0] = NULL;
 		fscanf(mtlFilePtr_,"%s", token);		// Ū token
 
-		if (!strcmp(token,"newmtl"))
-		{
+		if (!strcmp(token,"newmtl")) {
 			fscanf(mtlFilePtr_,"%s",buf);
 			Material newMtl;
 			mList_.push_back(newMtl);
@@ -195,8 +194,7 @@ void Mesh::loadMtl(string tex_file)
 			matMap_[objFile_+string("_")+string(buf)] = cur_mat; 	// matMap_["Material_name"] = Material_id;
 		}
 
-		else if (!strcmp(token,"Ka"))
-		{
+		else if (!strcmp(token,"Ka")) {
 			fscanf(mtlFilePtr_,"%f %f %f",&r,&g,&b);
 			mList_[cur_mat].Ka[0] = r;
 			mList_[cur_mat].Ka[1] = g;
@@ -204,8 +202,7 @@ void Mesh::loadMtl(string tex_file)
 			mList_[cur_mat].Ka[3] = 1;
 		}
 
-		else if (!strcmp(token,"Kd"))
-		{
+		else if (!strcmp(token,"Kd")) {
 			fscanf(mtlFilePtr_,"%f %f %f",&r,&g,&b);
 			mList_[cur_mat].Kd[0] = r;
 			mList_[cur_mat].Kd[1] = g;
@@ -213,8 +210,7 @@ void Mesh::loadMtl(string tex_file)
 			mList_[cur_mat].Kd[3] = 1;
 		}
 
-		else if (!strcmp(token,"Ks"))
-		{
+		else if (!strcmp(token,"Ks")) {
 			fscanf(mtlFilePtr_,"%f %f %f",&r,&g,&b);
 			mList_[cur_mat].Ks[0] = r;
 			mList_[cur_mat].Ks[1] = g;
@@ -222,38 +218,49 @@ void Mesh::loadMtl(string tex_file)
 			mList_[cur_mat].Ks[3] = 1;
 		}
 
-		else if (!strcmp(token,"Ns"))
-		{
+		else if (!strcmp(token, "Tf")) {
+			fscanf(mtlFilePtr_, "%f %f %f", &r, &g, &b);
+			mList_[cur_mat].Tf[0] = r;
+			mList_[cur_mat].Tf[1] = g;
+			mList_[cur_mat].Tf[2] = b;
+			mList_[cur_mat].Tf[3] = 1;
+		}
+
+		else if (!strcmp(token,"Ns")) {
 			fscanf(mtlFilePtr_,"%f",&r);
 			mList_[cur_mat].Ns = r;
 		}
 
-		else if (!strcmp(token,"Tr"))
-		{
+		else if (!strcmp(token, "Ni")) {
+			fscanf(mtlFilePtr_, "%f", &r);
+			mList_[cur_mat].Ni = r;
+		}
+
+		else if (!strcmp(token,"Tr")) {
 			fscanf(mtlFilePtr_,"%f",&r);
 			mList_[cur_mat].Tr = r;
 		}
 
-		else if (!strcmp(token,"d"))
-		{
+		else if (!strcmp(token,"d")) {
 			fscanf(mtlFilePtr_,"%f",&r);
 			mList_[cur_mat].Tr = r;
 		}
 
-		if (!strcmp(token,"map_Kd"))
-		{
+		else if (!strcmp(token, "illum")) {
+			fscanf(mtlFilePtr_, "%d", &mList_[cur_mat].illum);
+		}
+
+		else if (!strcmp(token,"map_Kd")) {
 			fscanf(mtlFilePtr_,"%s",buf);
 			mList_[cur_mat].map_Kd = buf;
 		}
 
-		if (!strcmp(token,"map_Ks"))
-		{
+		else if (!strcmp(token,"map_Ks")) {
 			fscanf(mtlFilePtr_,"%s",buf);
 			mList_[cur_mat].map_Ks = buf;
 		}
 
-		if (!strcmp(token,"map_Ka"))
-		{
+		else if (!strcmp(token,"map_Ka")) {
 			fscanf(mtlFilePtr_,"%s",buf);
 			mList_[cur_mat].map_Ka = buf;
 		}
