@@ -6,7 +6,7 @@ using namespace std;
 
 Source::Source()
 {
-	for (int i=0; i<4; i++) {
+	for (int i = 0; i<4; i++) {
 		pos_[i] = 1.0;
 		ambient_[i] = 1.0;
 		diffuse_[i] = 1.0;
@@ -17,7 +17,7 @@ Source::Source()
 Light::Light()
 {
 	lTotal_ = 0;
-	for (int i=0; i<4; i++)
+	for (int i = 0; i<4; i++)
 		enAmbient_[i] = 1.0;
 }
 
@@ -35,7 +35,7 @@ void Light::loadLight(const char * lightFile)
 {
 	FILE* data;
 	char token[100];
-		
+
 	data = fopen(lightFile, "r");
 	if (!data) {
 		cout << "Can not open Light File \"" << lightFile << "\" !" << endl;
