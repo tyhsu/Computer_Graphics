@@ -1,4 +1,4 @@
-// mesh.cpp: implementation of the mesh class.
+﻿// mesh.cpp: implementation of the mesh class.
 //
 //////////////////////////////////////////////////////////////////////
 

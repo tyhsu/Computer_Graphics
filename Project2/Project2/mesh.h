@@ -27,8 +27,8 @@ public:
 	std::string map_Kd;	//diffuse texture
 	std::string map_Ks;	//specular texture
 
-	//This mtl loader is still incomplete
-	//Please see http://en.wikipedia.org/wiki/Wavefront_.objFile#Material_template_library
+						//This mtl loader is still incomplete
+						//Please see http://en.wikipedia.org/wiki/Wavefront_.objFile#Material_template_library
 
 	Material()
 	{

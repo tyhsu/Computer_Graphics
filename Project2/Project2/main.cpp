@@ -2,17 +2,17 @@
 #include <vector>
 #include <string.h>
 #include <string>
-#include "FreeImage.h"
 #include "glew.h"
 #include "glut.h"
+#include "FreeImage.h"
 #include "mesh.h"
 #include "viewing.h"
 #include "light.h"
 #include "scene.h"
 using namespace std;
 
-#define NUM_OBJECT 9
-#define NUM_TEXTURE 1
+#define NUM_OBJECT 20
+#define NUM_TEXTURE 20
 unsigned int texObject[NUM_TEXTURE];
 
 vector<Mesh> objects;
@@ -40,23 +40,24 @@ void drag(int x, int y);
 
 int main(int argc, char** argv)
 {
-	//char objFiles[NUM_OBJECT][100] = { "box.obj", "bunny.obj", "venus.obj" };
-	char objFiles[NUM_OBJECT][100] = { "bush.obj", "gem.obj", "groundv2.obj", "hedge.obj", "leaves.obj", "LittleFountain.obj", "skybox.obj", "trunk.obj", "water.obj" };
+	//char objFiles[NUM_OBJECT][100] = { "bush.obj", "gem.obj", "groundv2.obj", "hedge.obj", "leaves.obj", "littlefountain.obj", "skybox.obj", "trunk.obj", "water.obj" };
+	char objFiles[NUM_OBJECT][100] = { "Bishop.obj", "Chessboard.obj", "King.obj", "Knight.obj", "Pawn.obj", "Queen.obj", "Rook.obj", "Room.obj" };
 
 	for (size_t i = 0; i<NUM_OBJECT; i++) {
 		Mesh obj(objFiles[i]);
 		objects.push_back(obj);
 	}
 	/*
-	view = new View("view.view");
-	light = new Light("light.light");
-	scene = new Scene("scene.scene");
-	*/
 	view = new View("park.view");
 	light = new Light("park.light");
 	scene = new Scene("park.scene");
-	cout << endl << "--------------------- finish loading files ---------------------" << endl;
+	*/
+	view = new View("Chess.view");
+	light = new Light("Chess.light");
+	scene = new Scene("Chess.scene");
 
+	cout << endl << "--------------------- finish loading files ---------------------" << endl;
+	
 	glutInit(&argc, argv);
 	glutInitWindowSize(view->width_, view->height_);
 	glutInitWindowPosition(0, 0);
@@ -83,17 +84,12 @@ int main(int argc, char** argv)
 		}
 	}
 	cout << endl << "-------------------- finish loading textures --------------------" << endl;
-	
+
 	FreeImage_DeInitialise();
-	printf("test1\n");
 	glutDisplayFunc(display);
-	printf("test2\n");
 	glutReshapeFunc(reshape);
-	printf("test3\n");
 	glutKeyboardFunc(keyboard);
-	printf("test4\n");
 	glutMotionFunc(drag);
-	printf("test5\n");
 	glutMainLoop();
 
 	return 0;
@@ -101,17 +97,20 @@ int main(int argc, char** argv)
 
 void loadTexture(const char* textureFile, size_t k)
 {
+	cout << textureFile << ": " << k << endl;
 	FIBITMAP* tImage = FreeImage_Load(FreeImage_GetFileType(textureFile, 0), textureFile);
 	FIBITMAP* t32BitsImage = FreeImage_ConvertTo32Bits(tImage);
 	int iWidth = FreeImage_GetWidth(t32BitsImage);
 	int iHeight = FreeImage_GetHeight(t32BitsImage);
 
 	glBindTexture(GL_TEXTURE_2D, texObject[k]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, iWidth, iHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage));
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000);
 
 	FreeImage_Unload(t32BitsImage);
 	FreeImage_Unload(tImage);
@@ -129,17 +128,18 @@ void loadCubeMap(char textureFiles[6][100], size_t k)
 	}
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texObject[k]);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA8, iWidth[0], iHeight[0], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[0]));
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA8, iWidth[1], iHeight[1], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[1]));
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA8, iWidth[2], iHeight[2], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[2]));
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA8, iWidth[3], iHeight[3], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[3]));
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA8, iWidth[4], iHeight[4], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[4]));
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA8, iWidth[5], iHeight[5], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[5]));
-	glTexEnvi(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000);
 
 	for (size_t i = 0; i<6; i++) {
 		FreeImage_Unload(t32BitsImage[i]);
@@ -193,23 +193,26 @@ void texBeforeRender(Textures tex)
 	if (texTechnique == 0) {		// no-texture
 	}
 	else if (texTechnique == 1) {	// single-texture
+		cout << "single-texture:" << tex.imageList_[0].texID_ << endl;
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, texObject[tex.imageList_[0].texID_]);
+		glBindTexture(GL_TEXTURE_2D, texObject[ tex.imageList_[0].texID_ ]);
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.5f);
 	}
 	else if (texTechnique == 2) {	// multi-texture
+		cout << "multi-texture: " << tex.imageList_[0].texID_ << " " << tex.imageList_[1].texID_ << endl;
 		for (size_t i = 0; i < 2; i++) {
 			GLenum glTexture = GL_TEXTURE0 + i;
 			glActiveTexture(glTexture);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, tex.imageList_[i].texID_);
+			glBindTexture(GL_TEXTURE_2D, texObject[ tex.imageList_[i].texID_ ]);
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 			glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
 		}
 	}
 	else {							// cube-map
+		cout << "cube-map: " << tex.texID_ << endl;
 		glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
 		glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
 		glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
@@ -217,7 +220,8 @@ void texBeforeRender(Textures tex)
 		glEnable(GL_TEXTURE_GEN_T);
 		glEnable(GL_TEXTURE_GEN_R);
 		glEnable(GL_TEXTURE_CUBE_MAP);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, tex.texID_);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, texObject[ tex.texID_ ]);
+		glTexEnvi(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	}
 }
 
@@ -235,7 +239,7 @@ void texAfterRender(Textures tex)
 		glActiveTexture(GL_TEXTURE1);
 		glDisable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
-		
+
 		glActiveTexture(GL_TEXTURE0);
 		glDisable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -265,36 +269,38 @@ void display()
 	size_t lastTexIndex = -1;
 	Textures currTex;
 	// for each model in the scene file
-	for (vector<Model>::iterator jt = scene->modelList_.begin(); jt != scene->modelList_.end(); jt++) {
+	for (vector<Model>::iterator it = scene->modelList_.begin(); it != scene->modelList_.end(); it++) {
 		glPushMatrix();
 		// enable and bind the texture if this model used different texture
-		if (lastTexIndex != jt->texIndex_) {
+		if (lastTexIndex != it->texIndex_) {
 			if (lastTexIndex != -1)
 				texAfterRender(currTex);
-			lastTexIndex = jt->texIndex_;
+			lastTexIndex = it->texIndex_;
 			currTex = scene->texList_[lastTexIndex];
 			texBeforeRender(currTex);
 		}
 
 		// find the selected mesh in the scene file
 		Mesh* obj = nullptr;
-		for (vector<Mesh>::iterator kt = objects.begin(); kt != objects.end(); kt++)
-		if (jt->objFile_ == jt->objFile_) {
-			obj = &(*kt);
-			break;
+		for (vector<Mesh>::iterator jt = objects.begin(); jt != objects.end(); jt++)
+			if (jt->objFile_ == it->objFile_) {
+				obj = &(*jt);
+				break;
+			}
+		if (obj == nullptr) {
+			cout << "Don't have " << it->objFile_ << " in the object files" << endl;
+			continue;
 		}
-		if (obj == nullptr)
-			cout << "Don't have " << jt->objFile_ << " in the object files" << endl;
 
-		glTranslated((GLdouble)jt->transfer_[0], (GLdouble)jt->transfer_[1], (GLdouble)jt->transfer_[2]);
-		glRotated((GLdouble)jt->angle_, (GLdouble)jt->rotate_[0], (GLdouble)jt->rotate_[1], (GLdouble)jt->rotate_[2]);
-		glScaled((GLdouble)jt->scale_[0], (GLdouble)jt->scale_[1], (GLdouble)jt->scale_[2]);
+		glTranslated((GLdouble)it->transfer_[0], (GLdouble)it->transfer_[1], (GLdouble)it->transfer_[2]);
+		glRotated((GLdouble)it->angle_, (GLdouble)it->rotate_[0], (GLdouble)it->rotate_[1], (GLdouble)it->rotate_[2]);
+		glScaled((GLdouble)it->scale_[0], (GLdouble)it->scale_[1], (GLdouble)it->scale_[2]);
 
 		// for each face in the mesh object
 		int lastMaterial = -1;
 		for (size_t i = 0; i < obj->fTotal_; ++i) {
 			// set material property if this face used different material
-/*			if (lastMaterial != obj->faceList_[i].m) {
+			if (lastMaterial != obj->faceList_[i].m) {
 				lastMaterial = (int)obj->faceList_[i].m;
 				glMaterialfv(GL_FRONT, GL_AMBIENT, obj->matList_[lastMaterial].Ka);
 				glMaterialfv(GL_FRONT, GL_DIFFUSE, obj->matList_[lastMaterial].Kd);
@@ -305,11 +311,11 @@ void display()
 				//load them once in the main function before mainloop
 				//bind them in display function here
 			}
-*/
+			
 			glBegin(GL_TRIANGLES);
 			// for each vertex in the face (triangle)
 			for (size_t j = 0; j < 3; ++j) {
-/*				if (texTechnique == 1 || texTechnique == 3)			// single-texture or cube-map
+				if (texTechnique == 1 || texTechnique == 3)			// single-texture or cube-map
 					glTexCoord2f(obj->tList_[obj->faceList_[i][j].t].ptr[0], obj->tList_[obj->faceList_[i][j].t].ptr[1]);
 				else if (texTechnique == 2) {	// multi-texture
 					for (size_t k = 0; k < 2; k++) {
@@ -317,7 +323,6 @@ void display()
 						glMultiTexCoord2fv(glTexture, obj->tList_[obj->faceList_[i][j].t].ptr);
 					}
 				}
-*/
 				glNormal3fv(obj->nList_[obj->faceList_[i][j].n].ptr);
 				glVertex3fv(obj->vList_[obj->faceList_[i][j].v].ptr);
 			}
