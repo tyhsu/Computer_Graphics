@@ -21,15 +21,17 @@ Light *light;
 Scene *scene;
 
 int winWidth, winHeight;
+int texTechnique = 0;
 double rSide[3], forth[3];
 size_t selectObj = 0;
 int preMouseX = 250, preMouseY = 250;
 double movCamUnit = 5.0, movObjUnit = 25;
 
-void viewing();
-void lighting();
 void loadTexture(char* textureFile, size_t k);
 void loadCubeMap(char** textureFiles, size_t k);
+void viewing();
+void lighting();
+void texPreRender(Textures tex);
 void display();
 void reshape(GLsizei w, GLsizei h);
 void keyboard(unsigned char key, int x, int y);
@@ -39,7 +41,6 @@ int main(int argc, char** argv)
 {
 	char objFiles[NUM_OBJECT][100] = { "box.obj", "bunny.obj", "venus.obj" };
 	//char objFiles[NUM_OBJECT][100] = { "bluebox.obj", "redbox.obj", "yellowbox.obj" };
-	char texFiles[NUM_TEXTURE][100] = { "chek_old.bmp" };
 
 	for (size_t i=0; i<NUM_OBJECT; i++) {
 		Mesh obj(objFiles[i]);
@@ -85,46 +86,6 @@ int main(int argc, char** argv)
 	glutMainLoop();
 
 	return 0;
-}
-
-void viewing()
-{
-	// viewport transformation
-	glViewport((GLint)view->x_, (GLint)view->y_, (GLsizei)view->width_, (GLsizei)view->height_);
-
-	// projection transformation
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective((GLdouble)view->fovy_, (GLfloat)winWidth / (GLfloat)winHeight, (GLdouble)view->dnear_, (GLdouble)view->dfar_);
-
-	// viewing and modeling transformation
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt((GLdouble)view->eye_[0], (GLdouble)view->eye_[1], (GLdouble)view->eye_[2],	// eye
-		(GLdouble)view->vat_[0], (GLdouble)view->vat_[1], (GLdouble)view->vat_[2],			// center
-		(GLdouble)view->vup_[0], (GLdouble)view->vup_[1], (GLdouble)view->vup_[2]);			// up
-}
-
-void lighting()
-{
-	glShadeModel(GL_SMOOTH);
-
-	// z buffer enable
-	glEnable(GL_DEPTH_TEST);
-
-	// enable lighting
-	glEnable(GL_LIGHTING);
-	// set light property
-	GLenum lightNo = GL_LIGHT0;
-	for (vector<Source>::iterator it=light->lList_.begin(); it!=light->lList_.end(); it++) {
-		glEnable(lightNo);
-		glLightfv(lightNo, GL_POSITION, it->pos_);
-		glLightfv(lightNo, GL_DIFFUSE, it->diffuse_);
-		glLightfv(lightNo, GL_SPECULAR, it->specular_);
-		glLightfv(lightNo, GL_AMBIENT, it->ambient_);
-		lightNo++;
-	}
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, light->enAmbient_);
 }
 
 void loadTexture(char* textureFile, size_t k)
@@ -175,6 +136,51 @@ void loadCubeMap(char** textureFiles, size_t k)
 	}
 }
 
+void viewing()
+{
+	// viewport transformation
+	glViewport((GLint)view->x_, (GLint)view->y_, (GLsizei)view->width_, (GLsizei)view->height_);
+
+	// projection transformation
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective((GLdouble)view->fovy_, (GLfloat)winWidth / (GLfloat)winHeight, (GLdouble)view->dnear_, (GLdouble)view->dfar_);
+
+	// viewing and modeling transformation
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt((GLdouble)view->eye_[0], (GLdouble)view->eye_[1], (GLdouble)view->eye_[2],	// eye
+		(GLdouble)view->vat_[0], (GLdouble)view->vat_[1], (GLdouble)view->vat_[2],			// center
+		(GLdouble)view->vup_[0], (GLdouble)view->vup_[1], (GLdouble)view->vup_[2]);			// up
+}
+
+void lighting()
+{
+	glShadeModel(GL_SMOOTH);
+
+	// z buffer enable
+	glEnable(GL_DEPTH_TEST);
+
+	// enable lighting
+	glEnable(GL_LIGHTING);
+	// set light property
+	GLenum lightNo = GL_LIGHT0;
+	for (vector<Source>::iterator it=light->lList_.begin(); it!=light->lList_.end(); it++) {
+		glEnable(lightNo);
+		glLightfv(lightNo, GL_POSITION, it->pos_);
+		glLightfv(lightNo, GL_DIFFUSE, it->diffuse_);
+		glLightfv(lightNo, GL_SPECULAR, it->specular_);
+		glLightfv(lightNo, GL_AMBIENT, it->ambient_);
+		lightNo++;
+	}
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, light->enAmbient_);
+}
+
+void texPreRender(Textures tex)
+{
+
+}
+
 void display()
 {
 	// clear the buffer
@@ -188,9 +194,15 @@ void display()
 	// note that light should be set after gluLookAt
 	lighting();
 
+	size_t lastTexID;
 	// draw objects listed in the scene file on the screen
 	for (vector<Model>::iterator jt = scene->modelList_.begin(); jt != scene->modelList_.end(); jt++) {
 		glPushMatrix();
+			if (lastTexID != jt->texID_) {
+				lastTexID = jt->texID_;
+				texPreRender(scene->texList_[lastTexID]);
+			}
+
 			// find the selected mesh in the scene file
 			Mesh* obj = nullptr;
 			for (vector<Mesh>::iterator kt = objects.begin(); kt != objects.end(); kt++)
@@ -223,8 +235,8 @@ void display()
 				glBegin(GL_TRIANGLES);
 					for (size_t j = 0; j < 3; ++j) {
 						//textex corrd. jt->tList[jt->faceList_[i][j].t].ptr
-						glNormal3fv(obj->nList_[obj->faceList_[i][j].n].ptr);
-						glVertex3fv(obj->vList_[obj->faceList_[i][j].v].ptr);
+						glNormal3fv(obj->nList_[ obj->faceList_[i][j].n ].ptr);
+						glVertex3fv(obj->vList_[ obj->faceList_[i][j].v ].ptr);
 					}
 				glEnd();
 			}
