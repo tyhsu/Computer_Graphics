@@ -11,7 +11,7 @@
 #include "scene.h"
 using namespace std;
 
-#define NUM_OBJECT 3
+#define NUM_OBJECT 9
 #define NUM_TEXTURE 1
 unsigned int texObject[NUM_TEXTURE];
 
@@ -28,7 +28,7 @@ int preMouseX = 250, preMouseY = 250;
 double movCamUnit = 5.0, movObjUnit = 25;
 
 void loadTexture(const char* textureFile, size_t k);
-void loadCubeMap(const char** textureFiles, size_t k);
+void loadCubeMap(char textureFiles[][], size_t k);
 void viewing();
 void lighting();
 void texBeforeRender(Textures tex);
@@ -40,20 +40,21 @@ void drag(int x, int y);
 
 int main(int argc, char** argv)
 {
-	char objFiles[NUM_OBJECT][100] = { "box.obj", "bunny.obj", "venus.obj" };
-	//char objFiles[NUM_OBJECT][100] = { "bluebox.obj", "redbox.obj", "yellowbox.obj" };
+	//char objFiles[NUM_OBJECT][100] = { "box.obj", "bunny.obj", "venus.obj" };
+	char objFiles[NUM_OBJECT][100] = { "bush.obj", "gem.obj", "groundv2.obj", "hedge.obj", "leaves.obj", "LittleFountain.obj", "skybox.obj", "trunk.obj", "water.obj" };
 
 	for (size_t i=0; i<NUM_OBJECT; i++) {
 		Mesh obj(objFiles[i]);
 		objects.push_back(obj);
 	}
+	/*
 	view = new View("view.view");
 	light = new Light("light.light");
 	scene = new Scene("scene.scene");
-	/*
-	view = new View("scene2.view");
-	light = new Light("scene2.light");
-	scene = new Scene("scene2.scene");*/
+	*/
+	view = new View("park.view");
+	light = new Light("park.light");
+	scene = new Scene("park.scene");
 	cout << endl << "--------------------- finish loading files ---------------------" << endl;
 
 	glutInit(&argc, argv);
@@ -66,16 +67,15 @@ int main(int argc, char** argv)
 	FreeImage_Initialise();
 	glGenTextures(NUM_TEXTURE, texObject);
 	size_t texNo = 0;
-	// if using cube-map, need to use another function to load textures
 	for (vector<Textures>::iterator it=scene->texList_.begin(); it!=scene->texList_.end(); it++) {
-		if (it->technique_ != 3) {
+		if (it->technique_ != 3) {	//not use cube-map
 			for (vector<TexImage>::iterator jt = it->imageList_.begin(); jt != it->imageList_.end(); jt++) {
 				jt->texID_ = texNo;
 				loadTexture(jt->imageFile.c_str(), texNo++);
 			}
 		}
-		else {
-			char** iList;
+		else {						//use cube-map
+			char iList[6][100];
 			for (size_t j = 0; j < 6; j++)
 				strcpy(iList[j], it->imageList_[j].imageFile.c_str());
 			it->texID_ = texNo;
@@ -112,7 +112,7 @@ void loadTexture(const char* textureFile, size_t k)
 	FreeImage_Unload(tImage);
 }
 
-void loadCubeMap(const char** textureFiles, size_t k)
+void loadCubeMap(char textureFiles[][], size_t k)
 {
 	FIBITMAP *tImage[6], *t32BitsImage[6];
 	int iWidth[6], iHeight[6];
@@ -251,14 +251,17 @@ void display()
 	// note that light should be set after gluLookAt
 	lighting();
 
-	size_t lastTexIndex;
+	size_t lastTexIndex = -1;
+	Textures currTex;
 	// draw objects listed in the scene file on the screen
 	for (vector<Model>::iterator jt = scene->modelList_.begin(); jt != scene->modelList_.end(); jt++) {
 		glPushMatrix();
 			if (lastTexIndex != jt->texIndex_) {
-				texAfterRender(scene->texList_[lastTexIndex]);
+				if (lastTexIndex != -1)
+					texAfterRender(currTex);
 				lastTexIndex = jt->texIndex_;
-				texBeforeRender(scene->texList_[lastTexIndex]);
+				currTex = scene->texList_[lastTexIndex];
+				texBeforeRender(currTex);
 			}
 
 			// find the selected mesh in the scene file
@@ -280,19 +283,27 @@ void display()
 				// set material property if this face used different material
 				if (lastMaterial != obj->faceList_[i].m) {
 					lastMaterial = (int)obj->faceList_[i].m;
-					glMaterialfv(GL_FRONT, GL_AMBIENT, obj->mList_[lastMaterial].Ka);
-					glMaterialfv(GL_FRONT, GL_DIFFUSE, obj->mList_[lastMaterial].Kd);
-					glMaterialfv(GL_FRONT, GL_SPECULAR, obj->mList_[lastMaterial].Ks);
-					glMaterialfv(GL_FRONT, GL_SHININESS, &obj->mList_[lastMaterial].Ns);
+					glMaterialfv(GL_FRONT, GL_AMBIENT, obj->matList_[lastMaterial].Ka);
+					glMaterialfv(GL_FRONT, GL_DIFFUSE, obj->matList_[lastMaterial].Kd);
+					glMaterialfv(GL_FRONT, GL_SPECULAR, obj->matList_[lastMaterial].Ks);
+					glMaterialfv(GL_FRONT, GL_SHININESS, &obj->matList_[lastMaterial].Ns);
 
-					//you can obtain the texture name by jt->modelList_[lastMaterial].map_Kd
+					//you can obtain the texture name by obj->matList_[lastMaterial].map_Kd
 					//load them once in the main function before mainloop
 					//bind them in display function here
 				}
 
 				glBegin(GL_TRIANGLES);
 					for (size_t j = 0; j < 3; ++j) {
-						//textex corrd. jt->tList[jt->faceList_[i][j].t].ptr
+						if (texTechnique == 1 || texTechnique == 3)			// single-texture or cube-map
+							glTexCoord2fv(obj->tList_[ obj->faceList_[i][j].t ].ptr);
+						else if (texTechnique == 2) {	// multi-texture
+							for (size_t k = 0; k < currTex.imageTotal_; k++) {
+								GLenum GLtexture = GL_TEXTURE0 + currTex.imageList_[k].texID_;
+								glMultiTexCoord2fv(GLtexture, obj->tList_[ obj->faceList_[i][j].t ].ptr);
+							}
+						}
+						
 						glNormal3fv(obj->nList_[ obj->faceList_[i][j].n ].ptr);
 						glVertex3fv(obj->vList_[ obj->faceList_[i][j].v ].ptr);
 					}

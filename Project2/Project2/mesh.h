@@ -101,9 +101,9 @@ public:
 	std::string					objFile_;
 	std::string					matFile_;
 
-	size_t						mTotal_;	// total Material 
+	size_t						matTotal_;	// total Material 
 	std::map<std::string,size_t>matMap_;	// matMap_[Material_name] = Material_ID
-	std::vector<Material>		mList_;		// Material ID (every Mesh has at most 100 Materials)	
+	std::vector<Material>		matList_;	// Material ID (every Mesh has at most 100 Materials)	
 
 	std::vector<Vec3>			vList_;		// Vertex List (Position) - world cord.
 	std::vector<Vec3>			nList_;		// Normal List

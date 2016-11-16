@@ -15,7 +15,7 @@ using namespace std;
 
 Mesh::Mesh(const char* objFile)
 {
-	mTotal_ = 0;		// mList_[0] reserved for default meterial
+	matTotal_ = 0;		// matList_[0] reserved for default meterial
 	vTotal_ = tTotal_ = nTotal_ = fTotal_ = 0;
 	
 	init(objFile);
@@ -23,7 +23,7 @@ Mesh::Mesh(const char* objFile)
 
 Mesh::Mesh()
 {
-	mTotal_ = 0;			
+	matTotal_ = 0;			
 	vTotal_ = tTotal_ = nTotal_ = fTotal_ = 0;
 }
 
@@ -161,7 +161,7 @@ void Mesh::loadMesh(string objFile)
 	nTotal_ = nList_.size();
 	tTotal_ = tList_.size();
 	fTotal_ = faceList_.size();
-	printf("vetex: %d, normal: %d, texture: %d, triangles: %d\n",vTotal_, nTotal_, tTotal_, fTotal_);
+	printf("vetex: %lu, normal: %lu, texture: %lu, triangles: %lu\n",vTotal_, nTotal_, tTotal_, fTotal_);
 }
 
 void Mesh::loadMtl(string tex_file)
@@ -189,80 +189,80 @@ void Mesh::loadMtl(string tex_file)
 		if (!strcmp(token,"newmtl")) {
 			fscanf(mtlFilePtr_,"%s",buf);
 			Material newMtl;
-			mList_.push_back(newMtl);
-			cur_mat = mTotal_++;					// starts from mList_[1], mList_[0] is used for default Material
+			matList_.push_back(newMtl);
+			cur_mat = matTotal_++;					// starts from matList_[1], matList_[0] is used for default Material
 			matMap_[objFile_+string("_")+string(buf)] = cur_mat; 	// matMap_["Material_name"] = Material_id;
 		}
 
 		else if (!strcmp(token,"Ka")) {
 			fscanf(mtlFilePtr_,"%f %f %f",&r,&g,&b);
-			mList_[cur_mat].Ka[0] = r;
-			mList_[cur_mat].Ka[1] = g;
-			mList_[cur_mat].Ka[2] = b;
-			mList_[cur_mat].Ka[3] = 1;
+			matList_[cur_mat].Ka[0] = r;
+			matList_[cur_mat].Ka[1] = g;
+			matList_[cur_mat].Ka[2] = b;
+			matList_[cur_mat].Ka[3] = 1;
 		}
 
 		else if (!strcmp(token,"Kd")) {
 			fscanf(mtlFilePtr_,"%f %f %f",&r,&g,&b);
-			mList_[cur_mat].Kd[0] = r;
-			mList_[cur_mat].Kd[1] = g;
-			mList_[cur_mat].Kd[2] = b;
-			mList_[cur_mat].Kd[3] = 1;
+			matList_[cur_mat].Kd[0] = r;
+			matList_[cur_mat].Kd[1] = g;
+			matList_[cur_mat].Kd[2] = b;
+			matList_[cur_mat].Kd[3] = 1;
 		}
 
 		else if (!strcmp(token,"Ks")) {
 			fscanf(mtlFilePtr_,"%f %f %f",&r,&g,&b);
-			mList_[cur_mat].Ks[0] = r;
-			mList_[cur_mat].Ks[1] = g;
-			mList_[cur_mat].Ks[2] = b;
-			mList_[cur_mat].Ks[3] = 1;
+			matList_[cur_mat].Ks[0] = r;
+			matList_[cur_mat].Ks[1] = g;
+			matList_[cur_mat].Ks[2] = b;
+			matList_[cur_mat].Ks[3] = 1;
 		}
 
 		else if (!strcmp(token, "Tf")) {
 			fscanf(mtlFilePtr_, "%f %f %f", &r, &g, &b);
-			mList_[cur_mat].Tf[0] = r;
-			mList_[cur_mat].Tf[1] = g;
-			mList_[cur_mat].Tf[2] = b;
-			mList_[cur_mat].Tf[3] = 1;
+			matList_[cur_mat].Tf[0] = r;
+			matList_[cur_mat].Tf[1] = g;
+			matList_[cur_mat].Tf[2] = b;
+			matList_[cur_mat].Tf[3] = 1;
 		}
 
 		else if (!strcmp(token,"Ns")) {
 			fscanf(mtlFilePtr_,"%f",&r);
-			mList_[cur_mat].Ns = r;
+			matList_[cur_mat].Ns = r;
 		}
 
 		else if (!strcmp(token, "Ni")) {
 			fscanf(mtlFilePtr_, "%f", &r);
-			mList_[cur_mat].Ni = r;
+			matList_[cur_mat].Ni = r;
 		}
 
 		else if (!strcmp(token,"Tr")) {
 			fscanf(mtlFilePtr_,"%f",&r);
-			mList_[cur_mat].Tr = r;
+			matList_[cur_mat].Tr = r;
 		}
 
 		else if (!strcmp(token,"d")) {
 			fscanf(mtlFilePtr_,"%f",&r);
-			mList_[cur_mat].Tr = r;
+			matList_[cur_mat].Tr = r;
 		}
 
 		else if (!strcmp(token, "illum")) {
-			fscanf(mtlFilePtr_, "%d", &mList_[cur_mat].illum);
+			fscanf(mtlFilePtr_, "%d", &matList_[cur_mat].illum);
 		}
 
 		else if (!strcmp(token,"map_Kd")) {
 			fscanf(mtlFilePtr_,"%s",buf);
-			mList_[cur_mat].map_Kd = buf;
+			matList_[cur_mat].map_Kd = buf;
 		}
 
 		else if (!strcmp(token,"map_Ks")) {
 			fscanf(mtlFilePtr_,"%s",buf);
-			mList_[cur_mat].map_Ks = buf;
+			matList_[cur_mat].map_Ks = buf;
 		}
 
 		else if (!strcmp(token,"map_Ka")) {
 			fscanf(mtlFilePtr_,"%s",buf);
-			mList_[cur_mat].map_Ka = buf;
+			matList_[cur_mat].map_Ka = buf;
 		}
 
 		else if (!strcmp(token,"#"))	  // comments
@@ -271,7 +271,7 @@ void Mesh::loadMtl(string tex_file)
 //		printf("[%s]\n",token);
 	}
 
-	printf("total Material:%d\n",matMap_.size());
+	printf("total Material:%lu\n",matMap_.size());
 
 	if (mtlFilePtr_) fclose(mtlFilePtr_);
 }
@@ -285,13 +285,13 @@ void Mesh::init(const char* objFile)
 	tList_.push_back(Vec3(default_value));
 
 	Material defaultMtl;
-	mList_.push_back(defaultMtl);
-	// set the default meterial: mList_[0]
-	mList_[0].Ka[0] = 0.0f; mList_[0].Ka[1] = 0.0f; mList_[0].Ka[2] = 0.0f; mList_[0].Ka[3] = 1.0f; 
-	mList_[0].Kd[0] = 1.0f; mList_[0].Kd[1] = 1.0f; mList_[0].Kd[2] = 1.0f; mList_[0].Kd[3] = 1.0f; 
-	mList_[0].Ks[0] = 0.8f; mList_[0].Ks[1] = 0.8f; mList_[0].Ks[2] = 0.8f; mList_[0].Ks[3] = 1.0f;
-	mList_[0].Ns = 32.0f;
-	mTotal_++;
+	matList_.push_back(defaultMtl);
+	// set the default meterial: matList_[0]
+	matList_[0].Ka[0] = 0.0f; matList_[0].Ka[1] = 0.0f; matList_[0].Ka[2] = 0.0f; matList_[0].Ka[3] = 1.0f; 
+	matList_[0].Kd[0] = 1.0f; matList_[0].Kd[1] = 1.0f; matList_[0].Kd[2] = 1.0f; matList_[0].Kd[3] = 1.0f; 
+	matList_[0].Ks[0] = 0.8f; matList_[0].Ks[1] = 0.8f; matList_[0].Ks[2] = 0.8f; matList_[0].Ks[3] = 1.0f;
+	matList_[0].Ns = 32.0f;
+	matTotal_++;
 
 	loadMesh(string(objFile));		// load *.obj files (can deal with Material)
 }

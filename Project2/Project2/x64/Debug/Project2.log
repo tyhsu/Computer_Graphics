@@ -26,26 +26,26 @@ z:\computer_graphics\project2\project2\viewing.cpp(71): warning C4477: 'printf' 
 z:\computer_graphics\project2\project2\viewing.cpp(71): warning C4477: 'printf' : format string '%lu' requires an argument of type 'unsigned long', but variadic argument 4 has type 'std::size_t'
   z:\computer_graphics\project2\project2\viewing.cpp(71): note: consider using '%zu' in the format string
   scene.cpp
-z:\computer_graphics\project2\project2\scene.cpp(29): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+z:\computer_graphics\project2\project2\scene.cpp(28): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
-z:\computer_graphics\project2\project2\scene.cpp(38): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+z:\computer_graphics\project2\project2\scene.cpp(37): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-z:\computer_graphics\project2\project2\scene.cpp(41): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+z:\computer_graphics\project2\project2\scene.cpp(40): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-z:\computer_graphics\project2\project2\scene.cpp(43): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+z:\computer_graphics\project2\project2\scene.cpp(42): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-z:\computer_graphics\project2\project2\scene.cpp(45): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+z:\computer_graphics\project2\project2\scene.cpp(44): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-z:\computer_graphics\project2\project2\scene.cpp(47): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+z:\computer_graphics\project2\project2\scene.cpp(46): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-z:\computer_graphics\project2\project2\scene.cpp(67): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+z:\computer_graphics\project2\project2\scene.cpp(63): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-z:\computer_graphics\project2\project2\scene.cpp(78): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+z:\computer_graphics\project2\project2\scene.cpp(73): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-z:\computer_graphics\project2\project2\scene.cpp(90): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+z:\computer_graphics\project2\project2\scene.cpp(84): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-z:\computer_graphics\project2\project2\scene.cpp(98): warning C4477: 'printf' : format string '%lu' requires an argument of type 'unsigned long', but variadic argument 1 has type 'std::size_t'
-  z:\computer_graphics\project2\project2\scene.cpp(98): note: consider using '%zu' in the format string
+z:\computer_graphics\project2\project2\scene.cpp(96): warning C4477: 'printf' : format string '%lu' requires an argument of type 'unsigned long', but variadic argument 1 has type 'std::size_t'
+  z:\computer_graphics\project2\project2\scene.cpp(96): note: consider using '%zu' in the format string
   mesh.cpp
 z:\computer_graphics\project2\project2\mesh.cpp(149): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
 z:\computer_graphics\project2\project2\mesh.cpp(43): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
@@ -66,14 +66,14 @@ z:\computer_graphics\project2\project2\mesh.cpp(91): error C4996: 'fscanf': This
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
 z:\computer_graphics\project2\project2\mesh.cpp(100): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-z:\computer_graphics\project2\project2\mesh.cpp(164): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'std::size_t'
-  z:\computer_graphics\project2\project2\mesh.cpp(164): note: consider using '%zd' in the format string
-z:\computer_graphics\project2\project2\mesh.cpp(164): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 2 has type 'std::size_t'
-  z:\computer_graphics\project2\project2\mesh.cpp(164): note: consider using '%zd' in the format string
-z:\computer_graphics\project2\project2\mesh.cpp(164): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 3 has type 'std::size_t'
-  z:\computer_graphics\project2\project2\mesh.cpp(164): note: consider using '%zd' in the format string
-z:\computer_graphics\project2\project2\mesh.cpp(164): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 4 has type 'std::size_t'
-  z:\computer_graphics\project2\project2\mesh.cpp(164): note: consider using '%zd' in the format string
+z:\computer_graphics\project2\project2\mesh.cpp(164): warning C4477: 'printf' : format string '%lu' requires an argument of type 'unsigned long', but variadic argument 1 has type 'std::size_t'
+  z:\computer_graphics\project2\project2\mesh.cpp(164): note: consider using '%zu' in the format string
+z:\computer_graphics\project2\project2\mesh.cpp(164): warning C4477: 'printf' : format string '%lu' requires an argument of type 'unsigned long', but variadic argument 2 has type 'std::size_t'
+  z:\computer_graphics\project2\project2\mesh.cpp(164): note: consider using '%zu' in the format string
+z:\computer_graphics\project2\project2\mesh.cpp(164): warning C4477: 'printf' : format string '%lu' requires an argument of type 'unsigned long', but variadic argument 3 has type 'std::size_t'
+  z:\computer_graphics\project2\project2\mesh.cpp(164): note: consider using '%zu' in the format string
+z:\computer_graphics\project2\project2\mesh.cpp(164): warning C4477: 'printf' : format string '%lu' requires an argument of type 'unsigned long', but variadic argument 4 has type 'std::size_t'
+  z:\computer_graphics\project2\project2\mesh.cpp(164): note: consider using '%zu' in the format string
 z:\computer_graphics\project2\project2\mesh.cpp(172): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
 z:\computer_graphics\project2\project2\mesh.cpp(187): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
@@ -104,26 +104,21 @@ z:\computer_graphics\project2\project2\mesh.cpp(259): error C4996: 'fscanf': Thi
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
 z:\computer_graphics\project2\project2\mesh.cpp(264): error C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-z:\computer_graphics\project2\project2\mesh.cpp(274): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
-  z:\computer_graphics\project2\project2\mesh.cpp(274): note: consider using '%zd' in the format string
+z:\computer_graphics\project2\project2\mesh.cpp(274): warning C4477: 'printf' : format string '%lu' requires an argument of type 'unsigned long', but variadic argument 1 has type 'unsigned __int64'
+  z:\computer_graphics\project2\project2\mesh.cpp(274): note: consider using '%zu' in the format string
   main.cpp
-z:\computer_graphics\project2\project2\main.cpp(55): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-z:\computer_graphics\project2\project2\main.cpp(232): error C2039: 'modelTotal_': is not a member of 'Scene'
-  z:\computer_graphics\project2\project2\scene.h(48): note: see declaration of 'Scene'
-z:\computer_graphics\project2\project2\main.cpp(233): error C2039: 'modelTotal_': is not a member of 'Scene'
-  z:\computer_graphics\project2\project2\scene.h(48): note: see declaration of 'Scene'
-z:\computer_graphics\project2\project2\main.cpp(241): error C2039: 'modelList_': is not a member of 'Scene'
-  z:\computer_graphics\project2\project2\scene.h(48): note: see declaration of 'Scene'
-z:\computer_graphics\project2\project2\main.cpp(241): error C2228: left of '.transfer_' must have class/struct/union
-z:\computer_graphics\project2\project2\main.cpp(245): error C2039: 'modelList_': is not a member of 'Scene'
-  z:\computer_graphics\project2\project2\scene.h(48): note: see declaration of 'Scene'
-z:\computer_graphics\project2\project2\main.cpp(245): error C2228: left of '.transfer_' must have class/struct/union
-z:\computer_graphics\project2\project2\main.cpp(249): error C2039: 'modelList_': is not a member of 'Scene'
-  z:\computer_graphics\project2\project2\scene.h(48): note: see declaration of 'Scene'
-z:\computer_graphics\project2\project2\main.cpp(249): error C2228: left of '.transfer_' must have class/struct/union
-z:\computer_graphics\project2\project2\main.cpp(253): error C2039: 'modelList_': is not a member of 'Scene'
-  z:\computer_graphics\project2\project2\scene.h(48): note: see declaration of 'Scene'
-z:\computer_graphics\project2\project2\main.cpp(253): error C2228: left of '.transfer_' must have class/struct/union
+z:\computer_graphics\project2\project2\main.cpp(31): error C2087: 'textureFiles': missing subscript
+z:\computer_graphics\project2\project2\main.cpp(61): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+z:\computer_graphics\project2\project2\main.cpp(82): error C2664: 'void loadCubeMap(char [][],std::size_t)': cannot convert argument 1 from 'char [6][100]' to 'char [][]'
+  z:\computer_graphics\project2\project2\main.cpp(82): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+z:\computer_graphics\project2\project2\main.cpp(80): error C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\string.h(119): note: see declaration of 'strcpy'
+z:\computer_graphics\project2\project2\main.cpp(115): error C2087: 'textureFiles': missing subscript
+z:\computer_graphics\project2\project2\main.cpp(197): warning C4267: 'initializing': conversion from 'size_t' to 'GLenum', possible loss of data
+z:\computer_graphics\project2\project2\main.cpp(200): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
+z:\computer_graphics\project2\project2\main.cpp(213): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
+z:\computer_graphics\project2\project2\main.cpp(230): warning C4267: 'initializing': conversion from 'size_t' to 'GLenum', possible loss of data
+z:\computer_graphics\project2\project2\main.cpp(302): warning C4267: 'initializing': conversion from 'size_t' to 'GLenum', possible loss of data
   light.cpp
 z:\computer_graphics\project2\project2\light.cpp(39): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
