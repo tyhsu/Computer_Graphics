@@ -26,7 +26,7 @@ void View::loadView(const char * viewFile)
 	FILE* data;
 	char token[100];
 	double v[3];
-	
+
 	data = fopen(viewFile, "r");
 	if (!data) {
 		cout << "Can not open Viewing File \"" << viewFile << "\" !" << endl;
