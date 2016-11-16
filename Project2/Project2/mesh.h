@@ -31,15 +31,15 @@ public:
 	//Please see http://en.wikipedia.org/wiki/Wavefront_.objFile#Material_template_library
 
 	Material()
-	{ 
-		for (size_t i=0;i<4;i++)
+	{
+		for (size_t i = 0; i<4; i++)
 			Ka[i] = Kd[i] = Ks[i] = 1.0f;
 		Ns = 0.0f;
 		Tr = 0.0f;
 	}
 };
 
-class Mesh  
+class Mesh
 {
 	class Vertex		// store the property of a basic vertex
 	{
@@ -49,7 +49,7 @@ class Mesh
 		size_t t;		// texture (index of tList_)
 
 		Vertex() {};
-		Vertex(size_t v_index, size_t n_index, size_t t_index=0)
+		Vertex(size_t v_index, size_t n_index, size_t t_index = 0)
 		{
 			v = v_index;
 			n = n_index;
@@ -61,9 +61,9 @@ class Mesh
 	{
 	public:
 		float ptr[3];
-		Vec3 (float *v) 
+		Vec3(float *v)
 		{
-			for (size_t i=0;i<3;i++)
+			for (size_t i = 0; i<3; i++)
 				ptr[i] = v[i];
 		}
 		inline float& operator[](size_t index)
@@ -78,9 +78,9 @@ class Mesh
 		Vertex v[3];	// 3 vertex for each face
 		int    m;		// Material (index of Material)
 
-		Face (Vertex &v1, Vertex &v2, Vertex &v3, int m_index)
+		Face(Vertex &v1, Vertex &v2, Vertex &v3, int m_index)
 		{
-			v[0] = v1; 
+			v[0] = v1;
 			v[1] = v2;
 			v[2] = v3;
 			m = m_index;
@@ -97,12 +97,12 @@ public:
 	/////////////////////////////////////////////////////////////////////////////
 	// Loading Object
 	/////////////////////////////////////////////////////////////////////////////
-	
+
 	std::string					objFile_;
 	std::string					matFile_;
 
 	size_t						matTotal_;	// total Material 
-	std::map<std::string,size_t>matMap_;	// matMap_[Material_name] = Material_ID
+	std::map<std::string, size_t>matMap_;	// matMap_[Material_name] = Material_ID
 	std::vector<Material>		matList_;	// Material ID (every Mesh has at most 100 Materials)	
 
 	std::vector<Vec3>			vList_;		// Vertex List (Position) - world cord.
@@ -113,7 +113,7 @@ public:
 	size_t	vTotal_, tTotal_, nTotal_, fTotal_; // number of total vertice, faces, texture coord., normal vecters, and faces
 
 	void	loadMesh(std::string objFile);
-	
+
 	Mesh();
 	Mesh(const char* objFile);
 	virtual ~Mesh();
