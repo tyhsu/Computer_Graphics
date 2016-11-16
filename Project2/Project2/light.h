@@ -17,7 +17,7 @@ public:
 };
 
 class Light
-{	
+{
 public:
 	size_t lTotal_;
 	vector<Source> lList_;
