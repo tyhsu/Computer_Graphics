@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string.h>
+#include <string>
 #include "FreeImage.h"
 #include "glew.h"
 #include "glut.h"
@@ -28,6 +29,7 @@ double movCamUnit = 5.0, movObjUnit = 25;
 void viewing();
 void lighting();
 void loadTexture(char* textureFile, size_t k);
+void loadCubeMap(char** textureFiles, size_t k);
 void display();
 void reshape(GLsizei w, GLsizei h);
 void keyboard(unsigned char key, int x, int y);
@@ -63,9 +65,16 @@ int main(int argc, char** argv)
 	glGenTextures(NUM_TEXTURE, texObject);
 	size_t texNo = 0;
 	// if using cube-map, need to use another function to load textures
-	for (vector<Textures>::iterator it=scene->texList_.begin(); it!=scene->texList_.end(); it++)
-		for (vector<string>::iterator jt=it->imageList_.begin(); jt!=it->imageList_.end(); jt++)
-			loadTexture(*jt, texNo++);
+	for (vector<Textures>::iterator it=scene->texList_.begin(); it!=scene->texList_.end(); it++) {
+		if (it->technique_ != 3) {
+			for (vector<string>::iterator jt=it->imageList_.begin(); jt!=it->imageList_.end(); jt++)
+				loadTexture(*jt.c_str(), texNo++);
+		}
+		else {
+			char** iList = it->imageList_.data();
+			loadCubeMap(iList, texNo++);
+		}
+	}
 	cout << endl << "-------------------- finish loading textures --------------------" << endl;
 	FreeImage_DeInitialise();
 
@@ -134,6 +143,36 @@ void loadTexture(char* textureFile, size_t k)
 
 	FreeImage_Unload(t32BitsImage);
 	FreeImage_Unload(tImage);
+}
+
+void loadCubeMap(char** textureFiles, size_t k)
+{
+	FIBITMAP *tImage[6], *t32BitsImage[6];
+	int iWidth[6], iHeight[6];
+	for (size_t i=0; i<6; i++) {
+		tImage[i] = FreeImage_Load(FreeImage_GetFileType(textureFile, 0), textureFile);
+		t32BitsImage[i] = FreeImage_ConvertTo32Bits(tImage);
+		iWidth[i] = FreeImage_GetWidth(t32BitsImage);
+		iHeight[i] = FreeImage_GetHeight(t32BitsImage);
+	}
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texObject[k]);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA8, iWidth[0], iHeight[0], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[0]));
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA8, iWidth[1], iHeight[1], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[1]));
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA8, iWidth[2], iHeight[2], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[2]));
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA8, iWidth[3], iHeight[3], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[3]));
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA8, iWidth[4], iHeight[4], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[4]));
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA8, iWidth[5], iHeight[5], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[5]));
+	glTexEnv(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	for (size_t i=0; i<6; i++) {
+		FreeImage_Unload(t32BitsImage);
+		FreeImage_Unload(tImage);
+	}
 }
 
 void display()
