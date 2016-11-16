@@ -2,16 +2,15 @@
 #include <vector>
 #include <string.h>
 #include <string>
+#include "FreeImage.h"
 #include "glew.h"
 #include "glut.h"
-#include "FreeImage.h"
 #include "mesh.h"
 #include "viewing.h"
 #include "light.h"
 #include "scene.h"
 using namespace std;
 
-#define NUM_OBJECT 20
 #define NUM_TEXTURE 20
 unsigned int texObject[NUM_TEXTURE];
 
@@ -23,9 +22,9 @@ Scene *scene;
 int winWidth, winHeight;
 int texTechnique = 0;
 double rSide[3], forth[3];
-size_t selectObj = 0;
+size_t selectObjIndex = 0;
 int preMouseX = 250, preMouseY = 250;
-double movCamUnit = 5.0, movObjUnit = 25;
+double movCamUnit = 5.0, movObjUnit = 2;
 
 void loadTexture(const char* textureFile, size_t k);
 void loadCubeMap(char textureFiles[6][100], size_t k);
@@ -40,22 +39,32 @@ void drag(int x, int y);
 
 int main(int argc, char** argv)
 {
-	//char objFiles[NUM_OBJECT][100] = { "bush.obj", "gem.obj", "groundv2.obj", "hedge.obj", "leaves.obj", "littlefountain.obj", "skybox.obj", "trunk.obj", "water.obj" };
-	char objFiles[NUM_OBJECT][100] = { "Bishop.obj", "Chessboard.obj", "King.obj", "Knight.obj", "Pawn.obj", "Queen.obj", "Rook.obj", "Room.obj" };
+	string parkObjFiles[] = { "bush.obj", "gem.obj", "groundv2.obj", "hedge.obj", "leaves.obj", "littlefountain.obj", "skybox.obj", "trunk.obj", "water.obj" };
+	string chessObjFiles[] = { "Bishop.obj", "Chessboard.obj", "King.obj", "Knight.obj", "Pawn.obj", "Queen.obj", "Rook.obj", "Room.obj" };
+	string *objFiles;
+	size_t objNum;
 
-	for (size_t i = 0; i<NUM_OBJECT; i++) {
-		Mesh obj(objFiles[i]);
+	int test;
+	cout << "1: Park scene | 2: Chess scene" << endl;
+	cin >> test;
+	if (test == 1) {
+		objFiles = parkObjFiles;
+		objNum = 9;
+		view = new View("park.view");
+		light = new Light("park.light");
+		scene = new Scene("park.scene");
+	}
+	else {
+		objFiles = chessObjFiles;
+		objNum = 8;
+		view = new View("Chess.view");
+		light = new Light("Chess.light");
+		scene = new Scene("Chess.scene");
+	}
+	for (size_t i = 0; i<objNum; i++) {
+		Mesh obj(objFiles[i].c_str());
 		objects.push_back(obj);
 	}
-	/*
-	view = new View("park.view");
-	light = new Light("park.light");
-	scene = new Scene("park.scene");
-	*/
-	view = new View("Chess.view");
-	light = new Light("Chess.light");
-	scene = new Scene("Chess.scene");
-
 	cout << endl << "--------------------- finish loading files ---------------------" << endl;
 	
 	glutInit(&argc, argv);
@@ -128,8 +137,8 @@ void loadCubeMap(char textureFiles[6][100], size_t k)
 	}
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texObject[k]);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA8, iWidth[0], iHeight[0], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[0]));
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA8, iWidth[1], iHeight[1], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[1]));
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA8, iWidth[2], iHeight[2], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[2]));
@@ -137,9 +146,10 @@ void loadCubeMap(char textureFiles[6][100], size_t k)
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA8, iWidth[4], iHeight[4], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[4]));
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA8, iWidth[5], iHeight[5], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[5]));
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000);
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+	glTexEnvi(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 1000);
 
 	for (size_t i = 0; i<6; i++) {
 		FreeImage_Unload(t32BitsImage[i]);
@@ -184,6 +194,7 @@ void lighting()
 		glLightfv(lightNo, GL_AMBIENT, it->ambient_);
 		lightNo++;
 	}
+	glEnable(GL_LIGHT_MODEL_AMBIENT);
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, light->enAmbient_);
 }
 
@@ -221,7 +232,7 @@ void texBeforeRender(Textures tex)
 		glEnable(GL_TEXTURE_GEN_R);
 		glEnable(GL_TEXTURE_CUBE_MAP);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texObject[ tex.texID_ ]);
-		glTexEnvi(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	}
 }
 
@@ -245,10 +256,11 @@ void texAfterRender(Textures tex)
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	else {							// cube-map
-		glDisable(GL_TEXTURE_CUBE_MAP);
+		
 		glDisable(GL_TEXTURE_GEN_S);
 		glDisable(GL_TEXTURE_GEN_T);
 		glDisable(GL_TEXTURE_GEN_R);
+		glDisable(GL_TEXTURE_CUBE_MAP);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 }
@@ -375,30 +387,30 @@ void keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 	}
 	else if (key >= '1' && key <= '9') {	// select n-th object
-		selectObj = key - '1';
-		if (selectObj >= scene->modelTotal_)
-			selectObj = scene->modelTotal_ - 1;
-		cout << "selected object: " << selectObj + 1 << endl;
+		selectObjIndex = key - '1';
+		if (selectObjIndex >= scene->modelTotal_)
+			selectObjIndex = scene->modelTotal_ - 1;
+		cout << "selected object: " << selectObjIndex + 1 << endl;
 	}
 }
 
 void drag(int x, int y)
 {
 	if (x > preMouseX) {		// right
-		scene->modelList_[selectObj].transfer_[0] += movObjUnit;
-		cout << "moving object " << selectObj + 1 << " right" << endl;
+		scene->modelList_[selectObjIndex].transfer_[0] += movObjUnit;
+		cout << "moving object " << selectObjIndex + 1 << " right" << endl;
 	}
 	else if (x < preMouseX) {	// left
-		scene->modelList_[selectObj].transfer_[0] -= movObjUnit;
-		cout << "moving object " << selectObj + 1 << " left" << endl;
+		scene->modelList_[selectObjIndex].transfer_[0] -= movObjUnit;
+		cout << "moving object " << selectObjIndex + 1 << " left" << endl;
 	}
 	if (y < preMouseY) {		// up
-		scene->modelList_[selectObj].transfer_[1] += movObjUnit;
-		cout << "moving object " << selectObj + 1 << " up" << endl;
+		scene->modelList_[selectObjIndex].transfer_[1] += movObjUnit;
+		cout << "moving object " << selectObjIndex + 1 << " up" << endl;
 	}
 	else if (y > preMouseY) {	// down
-		scene->modelList_[selectObj].transfer_[1] -= movObjUnit;
-		cout << "moving object " << selectObj + 1 << " down" << endl;
+		scene->modelList_[selectObjIndex].transfer_[1] -= movObjUnit;
+		cout << "moving object " << selectObjIndex + 1 << " down" << endl;
 	}
 	preMouseX = x;
 	preMouseY = y;
