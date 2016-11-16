@@ -24,7 +24,7 @@ void Scene::loadScene(const char * sceneFile)
 	FILE* data;
 	char token[100], buf[100];
 	double v[3];
-		
+
 	data = fopen(sceneFile, "r");
 	if (!data) {
 		cout << "Can not open Scene File \"" << sceneFile << "\" !" << endl;
@@ -92,6 +92,6 @@ void Scene::loadScene(const char * sceneFile)
 	if (data) fclose(data);
 	texTotal_ = texList_.size();
 	modelTotal_ = modelList_.size();
-	
+
 	printf("total models: %lu\n", texTotal_);
 }
