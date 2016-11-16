@@ -161,7 +161,7 @@ void Mesh::loadMesh(string objFile)
 	nTotal_ = nList_.size();
 	tTotal_ = tList_.size();
 	fTotal_ = faceList_.size();
-	printf("vetex: %lu, normal: %lu, texture: %lu, triangles: %lu\n", vTotal_, nTotal_, tTotal_, fTotal_);
+	printf("vetex: %zu, normal: %zu, texture: %zu, triangles: %zu\n", vTotal_, nTotal_, tTotal_, fTotal_);
 }
 
 void Mesh::loadMtl(string tex_file)
@@ -271,7 +271,7 @@ void Mesh::loadMtl(string tex_file)
 		//		printf("[%s]\n",token);
 	}
 
-	printf("total Material:%lu\n", matMap_.size());
+	printf("total Material:%zu\n", matMap_.size());
 
 	if (mtlFilePtr_) fclose(mtlFilePtr_);
 }

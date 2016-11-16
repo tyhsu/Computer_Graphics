@@ -6,9 +6,10 @@
 #include "glew.h"
 #include "glut.h"
 #include "mesh.h"
-#include "view.h"
+#include "viewing.h"
 #include "light.h"
 #include "scene.h"
+#pragma warning (disable:4996)
 using namespace std;
 
 #define NUM_OBJECT 9

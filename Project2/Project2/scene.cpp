@@ -93,5 +93,5 @@ void Scene::loadScene(const char * sceneFile)
 	texTotal_ = texList_.size();
 	modelTotal_ = modelList_.size();
 
-	printf("total models: %lu\n", texTotal_);
+	printf("total models: %zu\n", texTotal_);
 }
