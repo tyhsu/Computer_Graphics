@@ -47,7 +47,7 @@ void Scene::loadScene(const char * sceneFile)
 			m.transfer_.set(v);
 			cout << m.objFile_ << endl;
 
-			m.texID_ = texList_.size() - 1;	// the index in texList_
+			m.texIndex_ = texList_.size() - 1;	// the index in texList_
 			modelList_.push_back(m);
 		}
 		else if (strcmp(token, "no-texture") == 0) {
@@ -61,7 +61,8 @@ void Scene::loadScene(const char * sceneFile)
 			t.technique_ = 1;
 			t.imageTotal_ = 1;
 			fscanf(data, "%s", buf);
-			t.imageList_.push_back(buf);
+			TexImage ti(buf);
+			t.imageList_.push_back(ti);
 			texList_.push_back(t);
 		}
 		else if (strcmp(token, "multi-texture") == 0) {
@@ -70,7 +71,8 @@ void Scene::loadScene(const char * sceneFile)
 			t.imageTotal_ = 2;
 			for (size_t i = 0; i < t.imageTotal_; i++) {
 				fscanf(data, "%s", buf);
-				t.imageList_.push_back(buf);
+				TexImage ti(buf);
+				t.imageList_.push_back(ti);
 			}
 			texList_.push_back(t);
 		}
@@ -80,7 +82,8 @@ void Scene::loadScene(const char * sceneFile)
 			t.imageTotal_ = 6;
 			for (size_t i = 0; i < t.imageTotal_; i++) {
 				fscanf(data, "%s", buf);
-				t.imageList_.push_back(buf);
+				TexImage ti(buf);
+				t.imageList_.push_back(ti);
 			}
 			texList_.push_back(t);
 		}

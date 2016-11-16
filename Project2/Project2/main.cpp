@@ -27,8 +27,8 @@ size_t selectObj = 0;
 int preMouseX = 250, preMouseY = 250;
 double movCamUnit = 5.0, movObjUnit = 25;
 
-void loadTexture(char* textureFile, size_t k);
-void loadCubeMap(char** textureFiles, size_t k);
+void loadTexture(const char* textureFile, size_t k);
+void loadCubeMap(const char** textureFiles, size_t k);
 void viewing();
 void lighting();
 void texBeforeRender(Textures tex);
@@ -69,11 +69,16 @@ int main(int argc, char** argv)
 	// if using cube-map, need to use another function to load textures
 	for (vector<Textures>::iterator it=scene->texList_.begin(); it!=scene->texList_.end(); it++) {
 		if (it->technique_ != 3) {
-			for (vector<string>::iterator jt=it->imageList_.begin(); jt!=it->imageList_.end(); jt++)
-				loadTexture(*jt.c_str(), texNo++);
+			for (vector<TexImage>::iterator jt = it->imageList_.begin(); jt != it->imageList_.end(); jt++) {
+				jt->texID_ = texNo;
+				loadTexture(jt->imageFile.c_str(), texNo++);
+			}
 		}
 		else {
-			char** iList = it->imageList_.data();
+			char** iList;
+			for (size_t j = 0; j < 6; j++)
+				strcpy(iList[j], it->imageList_[j].imageFile.c_str());
+			it->texID_ = texNo;
 			loadCubeMap(iList, texNo++);
 		}
 	}
@@ -89,7 +94,7 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-void loadTexture(char* textureFile, size_t k)
+void loadTexture(const char* textureFile, size_t k)
 {
 	FIBITMAP* tImage = FreeImage_Load(FreeImage_GetFileType(textureFile, 0), textureFile);
 	FIBITMAP* t32BitsImage = FreeImage_ConvertTo32Bits(tImage);
@@ -107,15 +112,15 @@ void loadTexture(char* textureFile, size_t k)
 	FreeImage_Unload(tImage);
 }
 
-void loadCubeMap(char** textureFiles, size_t k)
+void loadCubeMap(const char** textureFiles, size_t k)
 {
 	FIBITMAP *tImage[6], *t32BitsImage[6];
 	int iWidth[6], iHeight[6];
 	for (size_t i=0; i<6; i++) {
-		tImage[i] = FreeImage_Load(FreeImage_GetFileType(textureFile, 0), textureFile);
-		t32BitsImage[i] = FreeImage_ConvertTo32Bits(tImage);
-		iWidth[i] = FreeImage_GetWidth(t32BitsImage);
-		iHeight[i] = FreeImage_GetHeight(t32BitsImage);
+		tImage[i] = FreeImage_Load(FreeImage_GetFileType(textureFiles[i], 0), textureFiles[i]);
+		t32BitsImage[i] = FreeImage_ConvertTo32Bits(tImage[i]);
+		iWidth[i] = FreeImage_GetWidth(t32BitsImage[i]);
+		iHeight[i] = FreeImage_GetHeight(t32BitsImage[i]);
 	}
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texObject[k]);
@@ -125,15 +130,15 @@ void loadCubeMap(char** textureFiles, size_t k)
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA8, iWidth[3], iHeight[3], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[3]));
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA8, iWidth[4], iHeight[4], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[4]));
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA8, iWidth[5], iHeight[5], 0, GL_BGRA, GL_UNSIGNED_BYTE, (void*)FreeImage_GetBits(t32BitsImage[5]));
-	glTexEnv(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexEnvi(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	for (size_t i=0; i<6; i++) {
-		FreeImage_Unload(t32BitsImage);
-		FreeImage_Unload(tImage);
+		FreeImage_Unload(t32BitsImage[i]);
+		FreeImage_Unload(tImage[i]);
 	}
 }
 
@@ -181,22 +186,56 @@ void texBeforeRender(Textures tex)
 {
 	texTechnique = tex.technique_;
 	if (texTechnique == 0) {		// no-texture
-
 	}
 	else if (texTechnique == 1) {	// single-texture
-
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, texObject[ tex.imageList_[0].texID_ ]);
 	}
 	else if (texTechnique == 2) {	// multi-texture
-
+		for (size_t i = 0; i < tex.imageTotal_; i++) {
+			size_t id = tex.imageList_[i].texID_;
+			GLenum GLtexture = GL_TEXTURE0 + id;
+			glActiveTexture(GLtexture);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, id);
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+			glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+		}
 	}
 	else {							// cube-map
-
+		glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+		glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+		glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+		glEnable(GL_TEXTURE_GEN_S);
+		glEnable(GL_TEXTURE_GEN_T);
+		glEnable(GL_TEXTURE_GEN_R);
+		glEnable(GL_TEXTURE_CUBE_MAP);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, tex.texID_);
 	}
 }
 
 void texAfterRender(Textures tex)
 {
-	
+	texTechnique = tex.technique_;
+	if (texTechnique == 0) {		// no-texture
+	}
+	else if (texTechnique == 1) {	// single-texture
+		glDisable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+	}
+	else if (texTechnique == 2) {	// multi-texture
+		for (size_t i = tex.imageTotal_ - 1; i >= 0; i--) {
+			size_t id = tex.imageList_[i].texID_;
+			GLenum GLtexture = GL_TEXTURE0 + id;
+			glActiveTexture(GLtexture);
+			glDisable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+	}
+	else {							// cube-map
+
+	}
 }
 
 void display()
@@ -212,13 +251,14 @@ void display()
 	// note that light should be set after gluLookAt
 	lighting();
 
-	size_t lastTexID;
+	size_t lastTexIndex;
 	// draw objects listed in the scene file on the screen
 	for (vector<Model>::iterator jt = scene->modelList_.begin(); jt != scene->modelList_.end(); jt++) {
 		glPushMatrix();
-			if (lastTexID != jt->texID_) {
-				lastTexID = jt->texID_;
-				texBeforeRender(scene->texList_[lastTexID]);
+			if (lastTexIndex != jt->texIndex_) {
+				texAfterRender(scene->texList_[lastTexIndex]);
+				lastTexIndex = jt->texIndex_;
+				texBeforeRender(scene->texList_[lastTexIndex]);
 			}
 
 			// find the selected mesh in the scene file
@@ -261,6 +301,7 @@ void display()
 		glPopMatrix();
 	}
 	
+	texAfterRender(scene->texList_[lastTexIndex]);
 	glutSwapBuffers();
 }
 

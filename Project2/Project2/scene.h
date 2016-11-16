@@ -32,15 +32,29 @@ public:
 	Vec3 rotate_;
 	Vec3 transfer_;
 
-	size_t texID_;				//record the index in texList_
+	size_t texIndex_;			//record the index in texList_
 };
+
+class TexImage
+{
+public:
+	size_t texID_;					//use for texObject when generating texture in main.cpp (not cube map)
+	string imageFile;			//name of image file
+
+	TexImage() {}
+	TexImage(const char* s) {
+		imageFile = s;
+	}
+};
+
 
 class Textures
 {
 public:
+	size_t texID_;					//use for texObject when generating texture in main.cpp (cube map)
 	int technique_;
 	size_t imageTotal_;
-	vector<string> imageList_;	//list of image file names
+	vector<TexImage> imageList_;	//list of image file names
 };
 
 class Scene
