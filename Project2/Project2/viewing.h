@@ -11,14 +11,14 @@ class View
 		double ptr[3];
 		void set(double *v)
 		{
-			for (size_t i=0; i<3; i++)
+			for (size_t i = 0; i<3; i++)
 				ptr[i] = v[i];
 		}
 		double* add(double* v, double mul)
 		{
 			double result[3];
-			for (size_t i=0; i<3; i++)
-				result[i] = ptr[i] + v[i]*mul;
+			for (size_t i = 0; i<3; i++)
+				result[i] = ptr[i] + v[i] * mul;
 			return result;
 		}
 		double* cross(double* v)
