@@ -9,7 +9,6 @@
 #include "viewing.h"
 #include "light.h"
 #include "scene.h"
-#pragma warning (disable:4996)
 using namespace std;
 
 #define NUM_OBJECT 9
@@ -295,7 +294,7 @@ void display()
 		int lastMaterial = -1;
 		for (size_t i = 0; i < obj->fTotal_; ++i) {
 			// set material property if this face used different material
-			if (lastMaterial != obj->faceList_[i].m) {
+/*			if (lastMaterial != obj->faceList_[i].m) {
 				lastMaterial = (int)obj->faceList_[i].m;
 				glMaterialfv(GL_FRONT, GL_AMBIENT, obj->matList_[lastMaterial].Ka);
 				glMaterialfv(GL_FRONT, GL_DIFFUSE, obj->matList_[lastMaterial].Kd);
@@ -306,11 +305,11 @@ void display()
 				//load them once in the main function before mainloop
 				//bind them in display function here
 			}
-
+*/
 			glBegin(GL_TRIANGLES);
 			// for each vertex in the face (triangle)
 			for (size_t j = 0; j < 3; ++j) {
-				if (texTechnique == 1 || texTechnique == 3)			// single-texture or cube-map
+/*				if (texTechnique == 1 || texTechnique == 3)			// single-texture or cube-map
 					glTexCoord2f(obj->tList_[obj->faceList_[i][j].t].ptr[0], obj->tList_[obj->faceList_[i][j].t].ptr[1]);
 				else if (texTechnique == 2) {	// multi-texture
 					for (size_t k = 0; k < 2; k++) {
@@ -318,7 +317,7 @@ void display()
 						glMultiTexCoord2fv(glTexture, obj->tList_[obj->faceList_[i][j].t].ptr);
 					}
 				}
-
+*/
 				glNormal3fv(obj->nList_[obj->faceList_[i][j].n].ptr);
 				glVertex3fv(obj->vList_[obj->faceList_[i][j].v].ptr);
 			}
