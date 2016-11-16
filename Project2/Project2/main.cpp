@@ -31,7 +31,8 @@ void loadTexture(char* textureFile, size_t k);
 void loadCubeMap(char** textureFiles, size_t k);
 void viewing();
 void lighting();
-void texPreRender(Textures tex);
+void texBeforeRender(Textures tex);
+void texAfterRender(Textures tex);
 void display();
 void reshape(GLsizei w, GLsizei h);
 void keyboard(unsigned char key, int x, int y);
@@ -176,9 +177,26 @@ void lighting()
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, light->enAmbient_);
 }
 
-void texPreRender(Textures tex)
+void texBeforeRender(Textures tex)
 {
+	texTechnique = tex.technique_;
+	if (texTechnique == 0) {		// no-texture
 
+	}
+	else if (texTechnique == 1) {	// single-texture
+
+	}
+	else if (texTechnique == 2) {	// multi-texture
+
+	}
+	else {							// cube-map
+
+	}
+}
+
+void texAfterRender(Textures tex)
+{
+	
 }
 
 void display()
@@ -200,7 +218,7 @@ void display()
 		glPushMatrix();
 			if (lastTexID != jt->texID_) {
 				lastTexID = jt->texID_;
-				texPreRender(scene->texList_[lastTexID]);
+				texBeforeRender(scene->texList_[lastTexID]);
 			}
 
 			// find the selected mesh in the scene file
