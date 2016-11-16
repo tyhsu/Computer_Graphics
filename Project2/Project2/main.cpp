@@ -241,10 +241,10 @@ void texAfterRender(Textures tex)
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	else {							// cube-map
+		glDisable(GL_TEXTURE_CUBE_MAP);
 		glDisable(GL_TEXTURE_GEN_S);
 		glDisable(GL_TEXTURE_GEN_T);
 		glDisable(GL_TEXTURE_GEN_R);
-		glDisable(GL_TEXTURE_CUBE_MAP);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 }
@@ -264,9 +264,10 @@ void display()
 
 	size_t lastTexIndex = -1;
 	Textures currTex;
-	// draw objects listed in the scene file on the screen
+	// for each model in the scene file
 	for (vector<Model>::iterator jt = scene->modelList_.begin(); jt != scene->modelList_.end(); jt++) {
 		glPushMatrix();
+		// enable and bind the texture if this model used different texture
 		if (lastTexIndex != jt->texIndex_) {
 			if (lastTexIndex != -1)
 				texAfterRender(currTex);
@@ -289,6 +290,7 @@ void display()
 		glRotated((GLdouble)jt->angle_, (GLdouble)jt->rotate_[0], (GLdouble)jt->rotate_[1], (GLdouble)jt->rotate_[2]);
 		glScaled((GLdouble)jt->scale_[0], (GLdouble)jt->scale_[1], (GLdouble)jt->scale_[2]);
 
+		// for each face in the mesh object
 		int lastMaterial = -1;
 		for (size_t i = 0; i < obj->fTotal_; ++i) {
 			// set material property if this face used different material
@@ -305,6 +307,7 @@ void display()
 			}
 
 			glBegin(GL_TRIANGLES);
+			// for each vertex in the face (triangle)
 			for (size_t j = 0; j < 3; ++j) {
 				if (texTechnique == 1 || texTechnique == 3)			// single-texture or cube-map
 					glTexCoord2f(obj->tList_[obj->faceList_[i][j].t].ptr[0], obj->tList_[obj->faceList_[i][j].t].ptr[1]);
