@@ -59,7 +59,7 @@ void View::loadView(const char * viewFile)
 			fscanf(data, "%lf", &dfar_);
 		}
 		else if (strcmp(token, "viewport") == 0) {
-			fscanf(data, "%d%d%lu%lu", &x_, &y_, &width_, &height_);
+			fscanf(data, "%d%d%zu%zu", &x_, &y_, &width_, &height_);
 		}
 	}
 
@@ -68,7 +68,7 @@ void View::loadView(const char * viewFile)
 	printf("vat: %lf %lf %lf\n", vat_[0], vat_[1], vat_[2]);
 	printf("vup: %lf %lf %lf\n", vup_[0], vup_[1], vup_[2]);
 	printf("fovy: %lf, dnear: %lf, dfar: %lf\n", fovy_, dnear_, dfar_);
-	printf("x: %d, y: %d, w: %lu, h: %lu\n", x_, y_, width_, height_);
+	printf("x: %d, y: %d, w: %zu, h: %zu\n", x_, y_, width_, height_);
 	printf("viewing file fclose\n\n");
 }
 

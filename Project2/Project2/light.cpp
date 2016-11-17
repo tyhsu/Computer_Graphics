@@ -61,6 +61,6 @@ void Light::loadLight(const char * lightFile)
 
 	if (data) fclose(data);
 	lTotal_ = lList_.size();
-	printf("total lights: %lu\n", lTotal_);
+	printf("total lights: %zu\n", lTotal_);
 	printf("environment ambient: %f %f %f\n", enAmbient_[0], enAmbient_[1], enAmbient_[2]);
 }
