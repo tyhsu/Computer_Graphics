@@ -66,7 +66,7 @@ int main(int argc, char** argv)
 		objects.push_back(obj);
 	}
 	cout << endl << "--------------------- finish loading files ---------------------" << endl;
-	
+
 	glutInit(&argc, argv);
 	glutInitWindowSize(view->width_, view->height_);
 	glutInitWindowPosition(0, 0);
@@ -206,7 +206,7 @@ void texBeforeRender(Textures tex)
 	else if (texTechnique == 1) {	// single-texture
 		cout << "single-texture:" << tex.imageList_[0].texID_ << endl;
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, texObject[ tex.imageList_[0].texID_ ]);
+		glBindTexture(GL_TEXTURE_2D, texObject[tex.imageList_[0].texID_]);
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.5f);
@@ -217,7 +217,7 @@ void texBeforeRender(Textures tex)
 			GLenum glTexture = GL_TEXTURE0 + i;
 			glActiveTexture(glTexture);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, texObject[ tex.imageList_[i].texID_ ]);
+			glBindTexture(GL_TEXTURE_2D, texObject[tex.imageList_[i].texID_]);
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 			glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
 		}
@@ -231,7 +231,7 @@ void texBeforeRender(Textures tex)
 		glEnable(GL_TEXTURE_GEN_T);
 		glEnable(GL_TEXTURE_GEN_R);
 		glEnable(GL_TEXTURE_CUBE_MAP);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, texObject[ tex.texID_ ]);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, texObject[tex.texID_]);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	}
 }
@@ -256,7 +256,7 @@ void texAfterRender(Textures tex)
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	else {							// cube-map
-		
+
 		glDisable(GL_TEXTURE_GEN_S);
 		glDisable(GL_TEXTURE_GEN_T);
 		glDisable(GL_TEXTURE_GEN_R);
@@ -323,7 +323,7 @@ void display()
 				//load them once in the main function before mainloop
 				//bind them in display function here
 			}
-			
+
 			glBegin(GL_TRIANGLES);
 			// for each vertex in the face (triangle)
 			for (size_t j = 0; j < 3; ++j) {
