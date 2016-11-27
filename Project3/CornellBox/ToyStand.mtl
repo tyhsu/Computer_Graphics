@@ -1,0 +1,8 @@
+newmtl stand_tory_color
+illum 4
+Kd 0.90 0.70 0.50
+Ka 0.10 0.10 0.10
+Tf 1.00 1.00 1.00
+Ni 1.00
+Ks 0.90 0.90 0.90
+Ns 20.00

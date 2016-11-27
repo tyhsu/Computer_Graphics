@@ -1,0 +1,9 @@
+newmtl sitting_troy_color
+illum 4
+Kd 0.60 0.80 0.80
+Ka 0.10 0.10 0.10
+Tf 1.00 1.00 1.00
+Ni 1.00
+Ks 0.90 0.90 0.90
+Ns 20.00
+
