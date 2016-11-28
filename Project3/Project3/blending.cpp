@@ -46,7 +46,7 @@ void idle()
 
 	alpha += 3.14 * (time2 - time1) / CLK_TCK;
 	dif_m[3] = (cos(alpha) + 1) / 2;
-	
+
 	time1 = time2;
 	glutPostRedisplay();
 }
