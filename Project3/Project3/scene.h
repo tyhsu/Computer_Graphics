@@ -69,6 +69,7 @@ public:
 	Scene(const char* sceneFile);
 	~Scene();
 	void loadScene(const char* sceneFile);
+	Model& searchModel(const string modelName);
 };
 
 #endif

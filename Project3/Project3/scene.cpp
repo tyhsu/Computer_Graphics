@@ -95,3 +95,12 @@ void Scene::loadScene(const char * sceneFile)
 
 	printf("total models: %zu\n", texTotal_);
 }
+
+Model& Scene::searchModel(const string modelName)
+{
+	for (vector<Model>::iterator it = modelList_.begin(); it != modelList_.end(); it++)
+		if (it->objFile_ == modelName)
+			return *it;
+	cout << "Don't have " << modelName << " in modelList in Scene" << endl;
+	return Model();
+}
