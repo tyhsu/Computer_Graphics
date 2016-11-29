@@ -218,6 +218,14 @@ void Mesh::loadMtl(string tex_file)
 			matList_[cur_mat].Ks[3] = 1;
 		}
 
+		else if (!strcmp(token, "Ke")) {
+			fscanf(mtlFilePtr_, "%f %f %f", &r, &g, &b);
+			matList_[cur_mat].Ke[0] = r;
+			matList_[cur_mat].Ke[1] = g;
+			matList_[cur_mat].Ke[2] = b;
+			matList_[cur_mat].Ke[3] = 1;
+		}
+
 		else if (!strcmp(token, "Tf")) {
 			fscanf(mtlFilePtr_, "%f %f %f", &r, &g, &b);
 			matList_[cur_mat].Tf[0] = r;

@@ -17,6 +17,7 @@ public:
 	float Ka[4];		//ambient coefficient
 	float Kd[4];		//diffuse coefficient
 	float Ks[4];		//specular coefficient
+	float Ke[4];		//emissive coefficient
 	float Tf[4];		//transmission filter
 	float Ns;			//shiness, specular exponent
 	float Ni;			//optical density
