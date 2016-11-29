@@ -4,22 +4,26 @@ void GL_display()
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_STENCIL_TEST);
 	glClearStencil(0);
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glStencilFunc(GL_ALWAYS, 1, 1);
 	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 	glColor3f(0.0, 1.0, 1.0);
 	glutSolidCube(16.0);
+
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT);
 	glStencilFunc(GL_EQUAL, 1, 1);
 	glColor3f(1.0, 1.0, 1.0);
 	glutSolidTeapot(8);
+
 	glStencilFunc(GL_NOTEQUAL, 1, 1);
 	glColor3f(1.0, 1.0, 0.0);
 	glPushMatrix();
 	glTranslatef(10, 0, 0);
 	glutSolidSphere(12, 10, 6);
 	glPopMatrix();
+
 	glFlush();
 }
 
