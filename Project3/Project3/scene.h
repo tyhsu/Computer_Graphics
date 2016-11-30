@@ -30,7 +30,7 @@ public:
 	double angle_;
 	Vec3 scale_;
 	Vec3 rotate_;
-	Vec3 transfer_;
+	Vec3 translate_;
 
 	size_t texIndex_;			//record the index in texList_
 };

@@ -44,7 +44,7 @@ void Scene::loadScene(const char * sceneFile)
 			fscanf(data, "%lf%lf%lf%lf", &m.angle_, &v[0], &v[1], &v[2]);
 			m.rotate_.set(v);
 			fscanf(data, "%lf%lf%lf", &v[0], &v[1], &v[2]);
-			m.transfer_.set(v);
+			m.translate_.set(v);
 			cout << m.objFile_ << endl;
 
 			m.texIndex_ = texList_.size() - 1;	// the index in texList_
@@ -93,7 +93,8 @@ void Scene::loadScene(const char * sceneFile)
 	texTotal_ = texList_.size();
 	modelTotal_ = modelList_.size();
 
-	printf("total models: %zu\n", texTotal_);
+	printf("total models: %zu\n", modelTotal_);
+	printf("total textures: %zu\n", texTotal_);
 }
 
 Model& Scene::searchModel(const string modelName)
