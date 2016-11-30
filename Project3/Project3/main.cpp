@@ -307,8 +307,8 @@ void display()
 
 	// set the stencil buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glStencilFunc(GL_ALWAYS, 1, 1);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+	glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	glPushMatrix();
 		transformation(&scene->searchModel("Mirror.obj"));
 		renderMesh(&objects[1]);
