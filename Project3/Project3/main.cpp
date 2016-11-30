@@ -21,6 +21,7 @@ Scene *scene;
 
 int winWidth, winHeight;
 int texTechnique = 0;
+GLfloat transmittance = 0.5f, reflectance = 0.5f;
 double rSide[3], forth[3];
 size_t selectObjIndex = 0;
 int preMouseX = 250, preMouseY = 250;
@@ -310,7 +311,8 @@ void display()
 	// note that light should be set after gluLookAt
 	lighting();
 
-	/* ===== Set the stencil buffer (the window) ===== */
+
+	/* ========== Set the stencil buffer (the window) ========== */
 	glStencilFunc(GL_ALWAYS, 1, 0xff);	// in case of an 8 bit stencil buffer
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	glStencilMask(0xff);
@@ -321,19 +323,61 @@ void display()
 		renderMesh(&objects[1]);
 	glPopMatrix();
 
-	/* ====== Render polygons on the stencil mask, the window ===== */
-	// Refraction (the standing teddy bear behind the window)
 
+	/* =========== Render polygons on the stencil mask, the window ========== */
+	glClearAccum(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_ACCUM_BUFFER_BIT);
+	glStencilFunc(GL_EQUAL, 1, 0xFF);
+	glStencilMask(0x00);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthMask(GL_TRUE);
+
+	// Refraction (the standing teddy bear behind the window)
+	glClear(GL_COLOR_BUFFER_BIT);
+	glEnable(GL_BLEND);
+	glFrontFace(GL_CCW);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glPushMatrix();
+		transformation(&scene->searchModel("ToyStand.obj"));
+		renderMesh(&objects[3]);
+	glPopMatrix();
+	glAccum(GL_ACCUM, transmittance);
+	glDisable(GL_BLEND);
 
 	// Reflection (the sitting teddy bear and the walls reflected from the window)
+	glClear(GL_COLOR_BUFFER_BIT);
+	glFrontFace(GL_CW);
+	glPushMatrix();
+		transformation(&scene->searchModel("CornellBox.obj"));
+		renderMesh(&objects[0]);
+	glPopMatrix();
+	glPushMatrix();
+		transformation(&scene->searchModel("ToySit.obj"));
+		renderMesh(&objects[2]);
+	glPopMatrix();
+	glAccum(GL_ACCUM, reflectance);
 
 
-	/* ===== Combination ===== */
+	/* =========== Combination =========== */
 	// return the accumulation buffer
-
+	glDisable(GL_STENCIL_TEST);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glAccum(GL_RETURN, 1.0);
 
 	// draw other scene expect the window's area
-
+	glFrontFace(GL_CCW);
+	glPushMatrix();
+		transformation(&scene->searchModel("CornellBox.obj"));
+		renderMesh(&objects[0]);
+	glPopMatrix();
+	glPushMatrix();
+		transformation(&scene->searchModel("Mirror.obj"));
+		renderMesh(&objects[1]);
+	glPopMatrix();
+	glPushMatrix();
+		transformation(&scene->searchModel("ToySit.obj"));
+		renderMesh(&objects[2]);
+	glPopMatrix();
 
 	glutSwapBuffers();
 }
@@ -360,22 +404,42 @@ void keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 	}
 	else if (key == 'a') {	// move left
-		printf("keyboard: %c\n", key);
+		printf("keyboard: %c - move left\n", key);
 		for (size_t i = 0; i < 3; i++)
 			view->eye_[i] -= rSide[i];
 		glutPostRedisplay();
 	}
 	else if (key == 's') {	// zoom out
-		printf("keyboard: %c\n", key);
+		printf("keyboard: %c - zoom out\n", key);
 		for (size_t i = 0; i < 3; i++)
 			view->eye_[i] -= forth[i];
 		glutPostRedisplay();
 	}
 	else if (key == 'd') {	//move right
-		printf("keyboard: %c\n", key);
+		printf("keyboard: %c - move right\n", key);
 		for (size_t i = 0; i < 3; i++)
 			view->eye_[i] += rSide[i];
 		glutPostRedisplay();
+	}
+	else if (key == 'r') {	//increase reflectance
+		printf("keyboard: %c - increase reflectance\n", key);
+		if (reflectance <= 0.9f)
+			reflectance += 0.1f;
+	}
+	else if (key == 'f') {	//decrease reflectance
+		printf("keyboard: %c - decrease reflectance\n", key);
+		if (reflectance >= 0.1f)
+			reflectance -= 0.1f;
+	}
+	else if (key == 't') {	//increase transmittance
+		printf("keyboard: %c - increase transmittance\n", key);
+		if (transmittance <= 0.9f)
+			transmittance += 0.1f;
+	}
+	else if (key == 'g') {	//decrease transmittance
+		printf("keyboard: %c - decrease transmittance\n", key);
+		if (transmittance >= 0.1f)
+			transmittance -= 0.1f;
 	}
 	else if (key >= '1' && key <= '9') {	// select n-th object
 		selectObjIndex = key - '1';
