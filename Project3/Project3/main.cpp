@@ -14,6 +14,8 @@ using namespace std;
 #define NUM_TEXTURE 20
 unsigned int texObject[NUM_TEXTURE];
 
+string objFiles[] = { "Cornell_box.obj", "Mirror.obj", "ToySit.obj", "ToyStand.obj" };
+size_t objNum = 4;
 vector<Mesh> objects;
 View *view;
 Light *light;
@@ -22,7 +24,7 @@ Scene *scene;
 int winWidth, winHeight;
 int texTechnique = 0;
 GLfloat transmittance = 0.5f, reflectance = 0.5f;
-double rSide[3], forth[3];
+double cameraRight[3], viewForward[3];
 size_t selectObjIndex = 0;
 int preMouseX = 250, preMouseY = 250;
 double movCamUnit = 5.0, movObjUnit = 2;
@@ -42,9 +44,6 @@ void drag(int x, int y);
 
 int main(int argc, char** argv)
 {
-	string objFiles[] = { "CornellBox.obj", "Mirror.obj", "ToySit.obj", "ToyStand.obj" };
-	size_t objNum = 4;
-
 	view = new View("CornellBox.view");
 	light = new Light("CornellBox.light");
 	scene = new Scene("CornellBox.scene");
@@ -58,7 +57,7 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	glutInitWindowSize(view->width_, view->height_);
 	glutInitWindowPosition(0, 0);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ACCUM);
 	glutCreateWindow("OpenGL Project 2");
 
 	glewInit();
@@ -188,7 +187,7 @@ void lighting()
 
 void transformation(Model* model)
 {
-	glTranslated((GLdouble)model->transfer_[0], (GLdouble)model->transfer_[1], (GLdouble)model->transfer_[2]);
+	glTranslated((GLdouble)model->translate_[0], (GLdouble)model->translate_[1], (GLdouble)model->translate_[2]);
 	glRotated((GLdouble)model->angle_, (GLdouble)model->rotate_[0], (GLdouble)model->rotate_[1], (GLdouble)model->rotate_[2]);
 	glScaled((GLdouble)model->scale_[0], (GLdouble)model->scale_[1], (GLdouble)model->scale_[2]);
 }
@@ -306,6 +305,8 @@ void display()
 	glEnable(GL_STENCIL_TEST);
 	glClearStencil(0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
 
 	viewing();
 	// note that light should be set after gluLookAt
@@ -313,71 +314,82 @@ void display()
 
 
 	/* ========== Set the stencil buffer (the window) ========== */
-	glStencilFunc(GL_ALWAYS, 1, 0xff);	// in case of an 8 bit stencil buffer
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-	glStencilMask(0xff);
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	glDepthMask(GL_FALSE);
-	glPushMatrix();
-		transformation(&scene->searchModel("Mirror.obj"));
-		renderMesh(&objects[1]);
-	glPopMatrix();
-
+	{
+		glStencilFunc(GL_ALWAYS, 1, 0xff);	// in case of an 8 bit stencil buffer
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		glStencilMask(0xff);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glDepthMask(GL_FALSE);
+		// Mirror
+		glPushMatrix();
+			transformation(&scene->searchModel(objFiles[1]));
+			renderMesh(&objects[1]);
+		glPopMatrix();
+	}
 
 	/* =========== Render polygons on the stencil mask, the window ========== */
-	glClearAccum(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_ACCUM_BUFFER_BIT);
-	glStencilFunc(GL_EQUAL, 1, 0xFF);
-	glStencilMask(0x00);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glDepthMask(GL_TRUE);
+	{
+		glClearAccum(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_ACCUM_BUFFER_BIT);
+		glStencilFunc(GL_EQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glDepthMask(GL_TRUE);
 
-	// Refraction (the standing teddy bear behind the window)
-	glClear(GL_COLOR_BUFFER_BIT);
-	glEnable(GL_BLEND);
-	glFrontFace(GL_CCW);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glPushMatrix();
-		transformation(&scene->searchModel("ToyStand.obj"));
-		renderMesh(&objects[3]);
-	glPopMatrix();
-	glAccum(GL_ACCUM, transmittance);
-	glDisable(GL_BLEND);
+		// Refraction (the standing teddy bear behind the window)
+		glClear(GL_COLOR_BUFFER_BIT);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glFrontFace(GL_CCW);
+		// ToyStand
+		glPushMatrix();
+			transformation(&scene->searchModel(objFiles[3]));
+			renderMesh(&objects[3]);
+		glPopMatrix();
+		glAccum(GL_ACCUM, transmittance);
+		glDisable(GL_BLEND);
 
-	// Reflection (the sitting teddy bear and the walls reflected from the window)
-	glClear(GL_COLOR_BUFFER_BIT);
-	glFrontFace(GL_CW);
-	glPushMatrix();
-		transformation(&scene->searchModel("CornellBox.obj"));
-		renderMesh(&objects[0]);
-	glPopMatrix();
-	glPushMatrix();
-		transformation(&scene->searchModel("ToySit.obj"));
-		renderMesh(&objects[2]);
-	glPopMatrix();
-	glAccum(GL_ACCUM, reflectance);
-
+		// Reflection (the sitting teddy bear and the walls reflected from the window)
+		glClear(GL_COLOR_BUFFER_BIT);
+		glFrontFace(GL_CW);
+		// Cornell_box
+		glPushMatrix();
+			transformation(&scene->searchModel(objFiles[0]));
+			renderMesh(&objects[0]);
+		glPopMatrix();
+		// ToySit
+		glPushMatrix();
+			transformation(&scene->searchModel(objFiles[2]));
+			renderMesh(&objects[2]);
+		glPopMatrix();
+		glAccum(GL_ACCUM, reflectance);
+	}
 
 	/* =========== Combination =========== */
-	// return the accumulation buffer
-	glDisable(GL_STENCIL_TEST);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glAccum(GL_RETURN, 1.0);
+	{
+		// return the accumulation buffer
+		glDisable(GL_STENCIL_TEST);
+		glClear(GL_COLOR_BUFFER_BIT);	//???
+		glFrontFace(GL_CCW);
+		glAccum(GL_RETURN, 1.0);
 
-	// draw other scene expect the window's area
-	glFrontFace(GL_CCW);
-	glPushMatrix();
-		transformation(&scene->searchModel("CornellBox.obj"));
-		renderMesh(&objects[0]);
-	glPopMatrix();
-	glPushMatrix();
-		transformation(&scene->searchModel("Mirror.obj"));
-		renderMesh(&objects[1]);
-	glPopMatrix();
-	glPushMatrix();
-		transformation(&scene->searchModel("ToySit.obj"));
-		renderMesh(&objects[2]);
-	glPopMatrix();
+		// draw other scene expect the window's area
+		// Cornell_box
+		glPushMatrix();
+			transformation(&scene->searchModel(objFiles[0]));
+			renderMesh(&objects[0]);
+		glPopMatrix();
+		// Mirror
+		glPushMatrix();
+			transformation(&scene->searchModel(objFiles[1]));
+			renderMesh(&objects[1]);
+		glPopMatrix();
+		// ToySit
+		glPushMatrix();
+			transformation(&scene->searchModel(objFiles[2]));
+			renderMesh(&objects[2]);
+		glPopMatrix();
+	}
 
 	glutSwapBuffers();
 }
@@ -390,56 +402,56 @@ void reshape(GLsizei w, GLsizei h)
 
 void keyboard(unsigned char key, int x, int y)
 {
-	forth[0] = (view->vat_[0] - view->eye_[0]) / movCamUnit;
-	forth[1] = (view->vat_[1] - view->eye_[1]) / movCamUnit;
-	forth[2] = (view->vat_[2] - view->eye_[2]) / movCamUnit;
-	rSide[0] = (forth[1] * view->vup_[2] - forth[2] * view->vup_[1]) / movCamUnit;
-	rSide[1] = (forth[2] * view->vup_[0] - forth[0] * view->vup_[2]) / movCamUnit;
-	rSide[2] = (forth[0] * view->vup_[1] - forth[1] * view->vup_[0]) / movCamUnit;
+	viewForward[0] = (view->vat_[0] - view->eye_[0]) / movCamUnit;
+	viewForward[1] = (view->vat_[1] - view->eye_[1]) / movCamUnit;
+	viewForward[2] = (view->vat_[2] - view->eye_[2]) / movCamUnit;
+	cameraRight[0] = (viewForward[1] * view->vup_[2] - viewForward[2] * view->vup_[1]) / movCamUnit;
+	cameraRight[1] = (viewForward[2] * view->vup_[0] - viewForward[0] * view->vup_[2]) / movCamUnit;
+	cameraRight[2] = (viewForward[0] * view->vup_[1] - viewForward[1] * view->vup_[0]) / movCamUnit;
 
 	if (key == 'w') {	// zoom in
 		printf("keyboard: %c\n", key);
 		for (size_t i = 0; i < 3; i++)
-			view->eye_[i] += forth[i];
+			view->eye_[i] += viewForward[i];
 		glutPostRedisplay();
 	}
 	else if (key == 'a') {	// move left
 		printf("keyboard: %c - move left\n", key);
 		for (size_t i = 0; i < 3; i++)
-			view->eye_[i] -= rSide[i];
+			view->eye_[i] -= cameraRight[i];
 		glutPostRedisplay();
 	}
 	else if (key == 's') {	// zoom out
 		printf("keyboard: %c - zoom out\n", key);
 		for (size_t i = 0; i < 3; i++)
-			view->eye_[i] -= forth[i];
+			view->eye_[i] -= viewForward[i];
 		glutPostRedisplay();
 	}
 	else if (key == 'd') {	//move right
 		printf("keyboard: %c - move right\n", key);
 		for (size_t i = 0; i < 3; i++)
-			view->eye_[i] += rSide[i];
+			view->eye_[i] += cameraRight[i];
 		glutPostRedisplay();
 	}
 	else if (key == 'r') {	//increase reflectance
-		printf("keyboard: %c - increase reflectance\n", key);
-		if (reflectance <= 0.9f)
-			reflectance += 0.1f;
+		reflectance += 0.1f;
+		if (reflectance > 1.0) reflectance = 1.0;
+		printf("keyboard: %c + reflectance: %.1f\n", key, reflectance);
 	}
 	else if (key == 'f') {	//decrease reflectance
-		printf("keyboard: %c - decrease reflectance\n", key);
-		if (reflectance >= 0.1f)
-			reflectance -= 0.1f;
+		reflectance -= 0.1f;
+		if (reflectance < 0.0) reflectance = 0.0;
+		printf("keyboard: %c - reflectance: %.1f\n", key, reflectance);
 	}
 	else if (key == 't') {	//increase transmittance
-		printf("keyboard: %c - increase transmittance\n", key);
-		if (transmittance <= 0.9f)
-			transmittance += 0.1f;
+		transmittance += 0.1f;
+		if (transmittance > 1.0) transmittance = 1.0;
+		printf("keyboard: %c + transmittance: %.1f\n", key, transmittance);
 	}
 	else if (key == 'g') {	//decrease transmittance
-		printf("keyboard: %c - decrease transmittance\n", key);
-		if (transmittance >= 0.1f)
-			transmittance -= 0.1f;
+		transmittance -= 0.1f;
+		if (transmittance < 0.0) transmittance = 0.0;
+		printf("keyboard: %c - transmittance: %.1f\n", key, transmittance);
 	}
 	else if (key >= '1' && key <= '9') {	// select n-th object
 		selectObjIndex = key - '1';
@@ -452,19 +464,19 @@ void keyboard(unsigned char key, int x, int y)
 void drag(int x, int y)
 {
 	if (x > preMouseX) {		// right
-		scene->modelList_[selectObjIndex].transfer_[0] += movObjUnit;
+		scene->modelList_[selectObjIndex].translate_[0] += movObjUnit;
 		cout << "moving object " << selectObjIndex + 1 << " right" << endl;
 	}
 	else if (x < preMouseX) {	// left
-		scene->modelList_[selectObjIndex].transfer_[0] -= movObjUnit;
+		scene->modelList_[selectObjIndex].translate_[0] -= movObjUnit;
 		cout << "moving object " << selectObjIndex + 1 << " left" << endl;
 	}
 	if (y < preMouseY) {		// up
-		scene->modelList_[selectObjIndex].transfer_[1] += movObjUnit;
+		scene->modelList_[selectObjIndex].translate_[1] += movObjUnit;
 		cout << "moving object " << selectObjIndex + 1 << " up" << endl;
 	}
 	else if (y > preMouseY) {	// down
-		scene->modelList_[selectObjIndex].transfer_[1] -= movObjUnit;
+		scene->modelList_[selectObjIndex].translate_[1] -= movObjUnit;
 		cout << "moving object " << selectObjIndex + 1 << " down" << endl;
 	}
 	preMouseX = x;
