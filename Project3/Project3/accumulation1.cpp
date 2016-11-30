@@ -9,9 +9,9 @@ void GL_display()
 		glClear(GL_COLOR_BUFFER_BIT);
 		glColor3f(1.0, 1 - (float)i / 180, 1 - (float)i / 360);
 		glPushMatrix();
-		glTranslatef(0, -6, -10);
-		glRotatef(i, 0, 1, 0);
-		glutWireTeapot(5);
+			glTranslatef(0, -6, -10);
+			glRotatef(i, 0, 1, 0);
+			glutWireTeapot(5);
 		glPopMatrix();
 		glAccum(GL_ACCUM, 0.01);
 	}
