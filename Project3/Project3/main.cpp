@@ -304,87 +304,35 @@ void display()
 	glDepthFunc(GL_LEQUAL);                    // The Type Of Depth Test To Do
 	glEnable(GL_STENCIL_TEST);
 	glClearStencil(0);
-
-	// set the stencil buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
+
+	viewing();
+	// note that light should be set after gluLookAt
+	lighting();
+
+	/* ===== Set the stencil buffer (the window) ===== */
+	glStencilFunc(GL_ALWAYS, 1, 0xff);	// in case of an 8 bit stencil buffer
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glStencilMask(0xff);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glDepthMask(GL_FALSE);
 	glPushMatrix();
 		transformation(&scene->searchModel("Mirror.obj"));
 		renderMesh(&objects[1]);
 	glPopMatrix();
 
-	viewing();
-	// note that light should be set after gluLookAt
-	lighting();
-	/*
-	size_t lastTexIndex = -1;
-	Textures currTex;
-	// for each model in the scene file
-	for (vector<Model>::iterator it = scene->modelList_.begin(); it != scene->modelList_.end(); it++) {
-		glPushMatrix();
-		// enable and bind the texture if this model used different texture
-		if (lastTexIndex != it->texIndex_) {
-			if (lastTexIndex != -1)
-				texAfterRender(currTex);
-			lastTexIndex = it->texIndex_;
-			currTex = scene->texList_[lastTexIndex];
-			texBeforeRender(currTex);
-		}
+	/* ====== Render polygons on the stencil mask, the window ===== */
+	// Refraction (the standing teddy bear behind the window)
 
-		// find the selected mesh in the scene file
-		Mesh* obj = nullptr;
-		for (vector<Mesh>::iterator jt = objects.begin(); jt != objects.end(); jt++)
-			if (jt->objFile_ == it->objFile_) {
-				obj = &(*jt);
-				break;
-			}
-		if (obj == nullptr) {
-			cout << "Don't have " << it->objFile_ << " in the object files" << endl;
-			continue;
-		}
 
-		glTranslated((GLdouble)it->transfer_[0], (GLdouble)it->transfer_[1], (GLdouble)it->transfer_[2]);
-		glRotated((GLdouble)it->angle_, (GLdouble)it->rotate_[0], (GLdouble)it->rotate_[1], (GLdouble)it->rotate_[2]);
-		glScaled((GLdouble)it->scale_[0], (GLdouble)it->scale_[1], (GLdouble)it->scale_[2]);
+	// Reflection (the sitting teddy bear and the walls reflected from the window)
 
-		// for each face in the mesh object
-		int lastMaterial = -1;
-		for (size_t i = 0; i < obj->fTotal_; ++i) {
-			// set material property if this face used different material
-			if (lastMaterial != obj->faceList_[i].m) {
-				lastMaterial = (int)obj->faceList_[i].m;
-				glMaterialfv(GL_FRONT, GL_AMBIENT, obj->matList_[lastMaterial].Ka);
-				glMaterialfv(GL_FRONT, GL_DIFFUSE, obj->matList_[lastMaterial].Kd);
-				glMaterialfv(GL_FRONT, GL_SPECULAR, obj->matList_[lastMaterial].Ks);
-				glMaterialfv(GL_FRONT, GL_SHININESS, &obj->matList_[lastMaterial].Ns);
 
-				//you can obtain the texture name by obj->matList_[lastMaterial].map_Kd
-				//load them once in the main function before mainloop
-				//bind them in display function here
-			}
+	/* ===== Combination ===== */
+	// return the accumulation buffer
 
-			glBegin(GL_TRIANGLES);
-			// for each vertex in the face (triangle)
-			for (size_t j = 0; j < 3; ++j) {
-				if (texTechnique == 1 || texTechnique == 3)			// single-texture or cube-map
-					glTexCoord2f(obj->tList_[obj->faceList_[i][j].t].ptr[0], obj->tList_[obj->faceList_[i][j].t].ptr[1]);
-				else if (texTechnique == 2) {	// multi-texture
-					for (size_t k = 0; k < 2; k++) {
-						GLenum glTexture = GL_TEXTURE0 + k;
-						glMultiTexCoord2fv(glTexture, obj->tList_[obj->faceList_[i][j].t].ptr);
-					}
-				}
-				glNormal3fv(obj->nList_[obj->faceList_[i][j].n].ptr);
-				glVertex3fv(obj->vList_[obj->faceList_[i][j].v].ptr);
-			}
-			glEnd();
-		}
-		glPopMatrix();
-	}
 
-	texAfterRender(scene->texList_[lastTexIndex]);*/
-
+	// draw other scene expect the window's area
 
 
 	glutSwapBuffers();
