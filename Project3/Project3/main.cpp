@@ -32,6 +32,7 @@ double movCamUnit = 5.0, movObjUnit = 2;
 void loadTexture(const char* textureFile, size_t k);
 void loadCubeMap(char textureFiles[6][100], size_t k);
 void viewing();
+void moveCamera();
 void lighting();
 void transformation(Model* model);
 void renderMesh(Mesh* obj);
@@ -159,6 +160,16 @@ void viewing()
 	glLoadIdentity();
 	gluLookAt((GLdouble)view->eye_[0], (GLdouble)view->eye_[1], (GLdouble)view->eye_[2],	// eye
 		(GLdouble)view->vat_[0], (GLdouble)view->vat_[1], (GLdouble)view->vat_[2],			// center
+		(GLdouble)view->vup_[0], (GLdouble)view->vup_[1], (GLdouble)view->vup_[2]);			// up
+}
+
+void moveCamera()
+{
+	// viewing and modeling transformation
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(-40 - (GLdouble)view->eye_[0], (GLdouble)view->eye_[1], (GLdouble)view->eye_[2],	// eye
+		-40 - (GLdouble)view->vat_[0], (GLdouble)view->vat_[1], (GLdouble)view->vat_[2],		// center
 		(GLdouble)view->vup_[0], (GLdouble)view->vup_[1], (GLdouble)view->vup_[2]);			// up
 }
 
@@ -331,17 +342,23 @@ void display()
 	{
 		glClearAccum(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_ACCUM_BUFFER_BIT);
-		glStencilFunc(GL_EQUAL, 1, 0xFF);
+		glStencilFunc(GL_EQUAL, 1, 0xff);
 		glStencilMask(0x00);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		glDepthMask(GL_TRUE);
+		//glDepthMask(GL_TRUE);
 
 		// Refraction (the standing teddy bear behind the window)
 		glClear(GL_COLOR_BUFFER_BIT);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glFrontFace(GL_CCW);
+		// Mirror
+		glPushMatrix();
+		transformation(&scene->searchModel(objFiles[1]));
+		renderMesh(&objects[1]);
+		glPopMatrix();
 		// ToyStand
+		glDepthMask(GL_TRUE);
 		glPushMatrix();
 			transformation(&scene->searchModel(objFiles[3]));
 			renderMesh(&objects[3]);
@@ -351,6 +368,7 @@ void display()
 
 		// Reflection (the sitting teddy bear and the walls reflected from the window)
 		glClear(GL_COLOR_BUFFER_BIT);
+		moveCamera();
 		glFrontFace(GL_CW);
 		// Cornell_box
 		glPushMatrix();
@@ -370,6 +388,7 @@ void display()
 		// return the accumulation buffer
 		glDisable(GL_STENCIL_TEST);
 		glClear(GL_COLOR_BUFFER_BIT);	//???
+		viewing();
 		glFrontFace(GL_CCW);
 		glAccum(GL_RETURN, 1.0);
 
@@ -379,11 +398,11 @@ void display()
 			transformation(&scene->searchModel(objFiles[0]));
 			renderMesh(&objects[0]);
 		glPopMatrix();
-		// Mirror
-		glPushMatrix();
-			transformation(&scene->searchModel(objFiles[1]));
-			renderMesh(&objects[1]);
-		glPopMatrix();
+		//// Mirror
+		//glPushMatrix();
+		//	transformation(&scene->searchModel(objFiles[1]));
+		//	renderMesh(&objects[1]);
+		//glPopMatrix();
 		// ToySit
 		glPushMatrix();
 			transformation(&scene->searchModel(objFiles[2]));
