@@ -52,12 +52,12 @@ int main(int argc, char** argv)
 		Mesh obj(objFiles[i].c_str());
 		objects.push_back(obj);
 	}
-	// set the ambient value of mirror
-	/*{
+	/* =========== set the ambient value of Mirror =========== */
+	{
 		objects[1].matList_[0].Ka[3] = 0.2f;
 		objects[1].matList_[0].Kd[3] = 0.2f;
 		objects[1].matList_[0].Ks[3] = 0.2f;
-	}*/
+	}
 	cout << endl << "--------------------- finish loading files ---------------------" << endl;
 
 	glutInit(&argc, argv);
@@ -360,7 +360,6 @@ void display()
 		// ToyStand
 		glDepthMask(GL_TRUE);
 		renderMesh(3);
-
 		glAccum(GL_ACCUM, transmittance);
 		glDisable(GL_BLEND);
 
@@ -371,14 +370,13 @@ void display()
 		//glScalef(1, 1, -1);
 		glFrontFace(GL_CW);
 		glPushMatrix();
-			glTranslatef(-40.0f, 0.0f, 0.0f);
 			glScalef(-1.0f, 1.0f, 1.0f);
+			glTranslatef(40.0f, 0.0f, 0.0f);
 			// Cornell_box
 			renderMesh(0);
 			// ToySit
 			renderMesh(2);
 		glPopMatrix();
-
 		glAccum(GL_ACCUM, reflectance);
 		glDisable(GL_STENCIL_TEST);
 	}
@@ -390,7 +388,7 @@ void display()
 		//viewing();
 		//lighting();
 		glFrontFace(GL_CCW);
-		glAccum(GL_RETURN, 1.0);
+		glAccum(GL_RETURN, 1.0f);
 
 		// draw other scene expect the window's area
 		// Cornell_box
@@ -418,7 +416,7 @@ void keyboard(unsigned char key, int x, int y)
 	cameraRight[2] = (viewForward[0] * view->vup_[1] - viewForward[1] * view->vup_[0]) / movCamUnit;
 
 	if (key == 'w') {	// zoom in
-		printf("keyboard: %c\n", key);
+		printf("keyboard: %c - zoom in\n", key);
 		for (size_t i = 0; i < 3; i++)
 			view->eye_[i] += viewForward[i];
 		glutPostRedisplay();
@@ -443,23 +441,27 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if (key == 'r') {	//increase reflectance
 		reflectance += 0.1f;
-		if (reflectance > 1.0) reflectance = 1.0;
+		if (reflectance > 1.0f) reflectance = 1.0f;
 		printf("keyboard: %c + reflectance: %.1f\n", key, reflectance);
+		glutPostRedisplay();
 	}
 	else if (key == 'f') {	//decrease reflectance
 		reflectance -= 0.1f;
-		if (reflectance < 0.0) reflectance = 0.0;
+		if (reflectance < 0.0f) reflectance = 0.0f;
 		printf("keyboard: %c - reflectance: %.1f\n", key, reflectance);
+		glutPostRedisplay();
 	}
 	else if (key == 't') {	//increase transmittance
 		transmittance += 0.1f;
-		if (transmittance > 1.0) transmittance = 1.0;
+		if (transmittance > 1.0f) transmittance = 1.0f;
 		printf("keyboard: %c + transmittance: %.1f\n", key, transmittance);
+		glutPostRedisplay();
 	}
 	else if (key == 'g') {	//decrease transmittance
 		transmittance -= 0.1f;
-		if (transmittance < 0.0) transmittance = 0.0;
+		if (transmittance < 0.0f) transmittance = 0.0f;
 		printf("keyboard: %c - transmittance: %.1f\n", key, transmittance);
+		glutPostRedisplay();
 	}
 	else if (key >= '1' && key <= '9') {	// select n-th object
 		selectObjIndex = key - '1';
