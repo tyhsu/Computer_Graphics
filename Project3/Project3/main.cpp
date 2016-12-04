@@ -34,7 +34,6 @@ void loadCubeMap(char textureFiles[6][100], size_t k);
 void viewing();
 void moveCamera();
 void lighting();
-void transformation(Model* model);
 void renderMesh(int index);
 void texBeforeRender(Textures* tex);
 void texAfterRender(Textures* tex);
@@ -53,12 +52,18 @@ int main(int argc, char** argv)
 		Mesh obj(objFiles[i].c_str());
 		objects.push_back(obj);
 	}
+	// set the ambient value of mirror
+	/*{
+		objects[1].matList_[0].Ka[3] = 0.2f;
+		objects[1].matList_[0].Kd[3] = 0.2f;
+		objects[1].matList_[0].Ks[3] = 0.2f;
+	}*/
 	cout << endl << "--------------------- finish loading files ---------------------" << endl;
 
 	glutInit(&argc, argv);
 	glutInitWindowSize(view->width_, view->height_);
 	glutInitWindowPosition(0, 0);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ACCUM);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ACCUM);
 	glutCreateWindow("OpenGL Project 2");
 
 	glewInit();
@@ -196,19 +201,16 @@ void lighting()
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, light->enAmbient_);
 }
 
-void transformation(Model* model)
-{
-	glTranslated((GLdouble)model->translate_[0], (GLdouble)model->translate_[1], (GLdouble)model->translate_[2]);
-	glRotated((GLdouble)model->angle_, (GLdouble)model->rotate_[0], (GLdouble)model->rotate_[1], (GLdouble)model->rotate_[2]);
-	glScaled((GLdouble)model->scale_[0], (GLdouble)model->scale_[1], (GLdouble)model->scale_[2]);
-}
-
 void renderMesh(int index)
 {
 	glPushMatrix();
-	transformation(&scene->searchModel(objFiles[index]));
-	Mesh* obj = &objects[index];
 
+	Model* model = &scene->searchModel(objFiles[index]);
+	glTranslated((GLdouble)model->translate_[0], (GLdouble)model->translate_[1], (GLdouble)model->translate_[2]);
+	glRotated((GLdouble)model->angle_, (GLdouble)model->rotate_[0], (GLdouble)model->rotate_[1], (GLdouble)model->rotate_[2]);
+	glScaled((GLdouble)model->scale_[0], (GLdouble)model->scale_[1], (GLdouble)model->scale_[2]);
+
+	Mesh* obj = &objects[index];
 	// for each face in the mesh object
 	int lastMaterial = -1;
 	for (size_t i = 0; i < obj->fTotal_; ++i) {
@@ -320,7 +322,7 @@ void display()
 	glDepthFunc(GL_LEQUAL);                    // The Type Of Depth Test To Do
 	glEnable(GL_STENCIL_TEST);
 	glClearStencil(0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
 	glCullFace(GL_BACK);
 	glEnable(GL_CULL_FACE);
 
@@ -343,7 +345,6 @@ void display()
 	/* =========== Render polygons on the stencil mask, the window ========== */
 	{
 		glClearAccum(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_ACCUM_BUFFER_BIT);
 		glStencilFunc(GL_EQUAL, 1, 0xff);
 		glStencilMask(0x00);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -365,15 +366,18 @@ void display()
 
 		// Reflection (the sitting teddy bear and the walls reflected from the window)
 		glClear(GL_COLOR_BUFFER_BIT);
-		moveCamera();
-		lighting();
-		glScalef(1, 1, -1);
+		//moveCamera();
+		//lighting();
+		//glScalef(1, 1, -1);
 		glFrontFace(GL_CW);
-
-		// Cornell_box
-		renderMesh(0);
-		// ToySit
-		renderMesh(2);
+		glPushMatrix();
+			glTranslatef(-40.0f, 0.0f, 0.0f);
+			glScalef(-1.0f, 1.0f, 1.0f);
+			// Cornell_box
+			renderMesh(0);
+			// ToySit
+			renderMesh(2);
+		glPopMatrix();
 
 		glAccum(GL_ACCUM, reflectance);
 		glDisable(GL_STENCIL_TEST);
@@ -383,8 +387,8 @@ void display()
 	{
 		// return the accumulation buffer
 		glClear(GL_COLOR_BUFFER_BIT);	//???
-		viewing();
-		lighting();
+		//viewing();
+		//lighting();
 		glFrontFace(GL_CCW);
 		glAccum(GL_RETURN, 1.0);
 
