@@ -337,10 +337,7 @@ void display()
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		glDepthMask(GL_FALSE);
 		// Mirror
-		glPushMatrix();
-			transformation(&scene->searchModel(objFiles[1]));
-			renderMesh(&objects[1]);
-		glPopMatrix();
+		renderMesh(1);
 	}
 
 	/* =========== Render polygons on the stencil mask, the window ========== */
