@@ -65,11 +65,11 @@ void display()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, dif_m);
 	glBegin(GL_POLYGON);
-	glNormal3f(0, 0, 1);
-	glVertex3f(-5, -5, 10);
-	glVertex3f(5, -5, 10);
-	glVertex3f(5, 5, 10);
-	glVertex3f(-5, 5, 10);
+		glNormal3f(0, 0, 1);
+		glVertex3f(-5, -5, 10);
+		glVertex3f(5, -5, 10);
+		glVertex3f(5, 5, 10);
+		glVertex3f(-5, 5, 10);
 	glEnd();
 	glutSwapBuffers();
 }

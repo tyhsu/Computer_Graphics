@@ -247,11 +247,17 @@ void Mesh::loadMtl(string tex_file)
 		else if (!strcmp(token, "Tr")) {
 			fscanf(mtlFilePtr_, "%f", &r);
 			matList_[cur_mat].Tr = r;
+			matList_[cur_mat].Ka[3] = r;
+			matList_[cur_mat].Kd[3] = r;
+			matList_[cur_mat].Ks[3] = r;
 		}
 
 		else if (!strcmp(token, "d")) {
 			fscanf(mtlFilePtr_, "%f", &r);
 			matList_[cur_mat].Tr = r;
+			matList_[cur_mat].Ka[3] = r;
+			matList_[cur_mat].Kd[3] = r;
+			matList_[cur_mat].Ks[3] = r;
 		}
 
 		else if (!strcmp(token, "illum")) {

@@ -52,12 +52,6 @@ int main(int argc, char** argv)
 		Mesh obj(objFiles[i].c_str());
 		objects.push_back(obj);
 	}
-	/* =========== set the ambient value of Mirror =========== */
-	{
-		//objects[1].matList_[0].Ka[3] = 0.2f;
-		objects[1].matList_[0].Kd[3] = 0.2f;
-		//objects[1].matList_[0].Ks[3] = 0.2f;
-	}
 	cout << endl << "--------------------- finish loading files ---------------------" << endl;
 
 	glutInit(&argc, argv);
@@ -349,19 +343,20 @@ void display()
 		glStencilFunc(GL_EQUAL, 1, 0xff);
 		glStencilMask(0x00);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		glDepthMask(GL_TRUE);
 
 		// Refraction (the standing teddy bear behind the window)
 		glClear(GL_COLOR_BUFFER_BIT);
 		glFrontFace(GL_CCW);
 		// ToyStand
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glDepthMask(GL_TRUE);
+		glDepthMask(GL_TRUE);
 		renderMesh(3);
 		// Mirror
+		glDepthMask(GL_FALSE);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		renderMesh(1);
 		glAccum(GL_ACCUM, transmittance);
+		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 
 		// Reflection (the sitting teddy bear and the walls reflected from the window)
