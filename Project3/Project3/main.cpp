@@ -354,8 +354,8 @@ void display()
 		glFrontFace(GL_CCW);
 		// Mirror
 		glPushMatrix();
-		transformation(&scene->searchModel(objFiles[1]));
-		renderMesh(&objects[1]);
+			transformation(&scene->searchModel(objFiles[1]));
+			renderMesh(&objects[1]);
 		glPopMatrix();
 		// ToyStand
 		glDepthMask(GL_TRUE);
@@ -369,7 +369,10 @@ void display()
 		// Reflection (the sitting teddy bear and the walls reflected from the window)
 		glClear(GL_COLOR_BUFFER_BIT);
 		moveCamera();
+		lighting();
+		glScalef(1, 1, -1);
 		glFrontFace(GL_CW);
+
 		// Cornell_box
 		glPushMatrix();
 			transformation(&scene->searchModel(objFiles[0]));
@@ -389,6 +392,7 @@ void display()
 		glDisable(GL_STENCIL_TEST);
 		glClear(GL_COLOR_BUFFER_BIT);	//???
 		viewing();
+		lighting();
 		glFrontFace(GL_CCW);
 		glAccum(GL_RETURN, 1.0);
 
