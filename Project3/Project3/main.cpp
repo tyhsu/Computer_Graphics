@@ -35,7 +35,7 @@ void viewing();
 void moveCamera();
 void lighting();
 void transformation(Model* model);
-void renderMesh(Mesh* obj);
+void renderMesh(int index);
 void texBeforeRender(Textures* tex);
 void texAfterRender(Textures* tex);
 void display();
@@ -203,8 +203,12 @@ void transformation(Model* model)
 	glScaled((GLdouble)model->scale_[0], (GLdouble)model->scale_[1], (GLdouble)model->scale_[2]);
 }
 
-void renderMesh(Mesh* obj)
+void renderMesh(int index)
 {
+	glPushMatrix();
+	transformation(&scene->searchModel(objFiles[index]));
+	Mesh* obj = &objects[index];
+
 	// for each face in the mesh object
 	int lastMaterial = -1;
 	for (size_t i = 0; i < obj->fTotal_; ++i) {
@@ -237,6 +241,7 @@ void renderMesh(Mesh* obj)
 		}
 		glEnd();
 	}
+	glPopMatrix();
 }
 
 void texBeforeRender(Textures* tex)
@@ -353,16 +358,11 @@ void display()
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glFrontFace(GL_CCW);
 		// Mirror
-		glPushMatrix();
-			transformation(&scene->searchModel(objFiles[1]));
-			renderMesh(&objects[1]);
-		glPopMatrix();
+		renderMesh(1);
 		// ToyStand
 		glDepthMask(GL_TRUE);
-		glPushMatrix();
-			transformation(&scene->searchModel(objFiles[3]));
-			renderMesh(&objects[3]);
-		glPopMatrix();
+		renderMesh(3);
+
 		glAccum(GL_ACCUM, transmittance);
 		glDisable(GL_BLEND);
 
@@ -374,22 +374,17 @@ void display()
 		glFrontFace(GL_CW);
 
 		// Cornell_box
-		glPushMatrix();
-			transformation(&scene->searchModel(objFiles[0]));
-			renderMesh(&objects[0]);
-		glPopMatrix();
+		renderMesh(0);
 		// ToySit
-		glPushMatrix();
-			transformation(&scene->searchModel(objFiles[2]));
-			renderMesh(&objects[2]);
-		glPopMatrix();
+		renderMesh(2);
+
 		glAccum(GL_ACCUM, reflectance);
+		glDisable(GL_STENCIL_TEST);
 	}
 
 	/* =========== Combination =========== */
 	{
 		// return the accumulation buffer
-		glDisable(GL_STENCIL_TEST);
 		glClear(GL_COLOR_BUFFER_BIT);	//???
 		viewing();
 		lighting();
@@ -398,20 +393,9 @@ void display()
 
 		// draw other scene expect the window's area
 		// Cornell_box
-		glPushMatrix();
-			transformation(&scene->searchModel(objFiles[0]));
-			renderMesh(&objects[0]);
-		glPopMatrix();
-		//// Mirror
-		//glPushMatrix();
-		//	transformation(&scene->searchModel(objFiles[1]));
-		//	renderMesh(&objects[1]);
-		//glPopMatrix();
+		renderMesh(0);
 		// ToySit
-		glPushMatrix();
-			transformation(&scene->searchModel(objFiles[2]));
-			renderMesh(&objects[2]);
-		glPopMatrix();
+		renderMesh(2);
 	}
 
 	glutSwapBuffers();
