@@ -360,7 +360,7 @@ void display()
 		glDisable(GL_BLEND);
 
 		// Reflection (the sitting teddy bear and the walls reflected from the window)
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//moveCamera();
 		//lighting();
 		//glScalef(1, 1, -1);
