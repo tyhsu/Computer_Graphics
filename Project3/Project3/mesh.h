@@ -33,8 +33,10 @@ public:
 
 	Material()
 	{
-		for (size_t i = 0; i<4; i++)
-			Ka[i] = Kd[i] = Ks[i] = 1.0f;
+		Ka[0] = Ka[1] = Ka[2] = 0.2, Ka[3] = 1.0;
+		Kd[0] = Kd[1] = Kd[2] = 0.8, Kd[3] = 1.0;
+		Ks[0] = Ks[1] = Ks[2] = 0.0, Ks[3] = 1.0;
+		Ke[0] = Ke[1] = Ke[2] = 0.0, Ke[3] = 1.0;
 		Ns = 0.0f;
 		Tr = 0.0f;
 	}

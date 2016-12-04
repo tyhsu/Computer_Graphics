@@ -54,9 +54,9 @@ int main(int argc, char** argv)
 	}
 	/* =========== set the ambient value of Mirror =========== */
 	{
-		objects[1].matList_[0].Ka[3] = 0.2f;
+		//objects[1].matList_[0].Ka[3] = 0.2f;
 		objects[1].matList_[0].Kd[3] = 0.2f;
-		objects[1].matList_[0].Ks[3] = 0.2f;
+		//objects[1].matList_[0].Ks[3] = 0.2f;
 	}
 	cout << endl << "--------------------- finish loading files ---------------------" << endl;
 
@@ -221,6 +221,7 @@ void renderMesh(int index)
 			glMaterialfv(GL_FRONT, GL_DIFFUSE, obj->matList_[lastMaterial].Kd);
 			glMaterialfv(GL_FRONT, GL_SPECULAR, obj->matList_[lastMaterial].Ks);
 			glMaterialfv(GL_FRONT, GL_SHININESS, &obj->matList_[lastMaterial].Ns);
+			glMaterialfv(GL_FRONT, GL_EMISSION, obj->matList_[lastMaterial].Ke);
 
 			//you can obtain the texture name by obj->matList_[lastMaterial].map_Kd
 			//load them once in the main function before mainloop
@@ -319,7 +320,7 @@ void display()
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);      // for use in cleaning color buffers
 	glClearDepth(1.0f);                        // Depth Buffer (it's the buffer) Setup
 	glEnable(GL_DEPTH_TEST);                   // Enables Depth Testing
-	glDepthFunc(GL_LEQUAL);                    // The Type Of Depth Test To Do
+	glDepthFunc(GL_LESS);                    // The Type Of Depth Test To Do
 	glEnable(GL_STENCIL_TEST);
 	glClearStencil(0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
@@ -348,18 +349,18 @@ void display()
 		glStencilFunc(GL_EQUAL, 1, 0xff);
 		glStencilMask(0x00);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		//glDepthMask(GL_TRUE);
+		glDepthMask(GL_TRUE);
 
 		// Refraction (the standing teddy bear behind the window)
 		glClear(GL_COLOR_BUFFER_BIT);
+		glFrontFace(GL_CCW);
+		// ToyStand
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glFrontFace(GL_CCW);
+		//glDepthMask(GL_TRUE);
+		renderMesh(3);
 		// Mirror
 		renderMesh(1);
-		// ToyStand
-		glDepthMask(GL_TRUE);
-		renderMesh(3);
 		glAccum(GL_ACCUM, transmittance);
 		glDisable(GL_BLEND);
 
@@ -404,6 +405,7 @@ void reshape(GLsizei w, GLsizei h)
 {
 	winWidth = w;
 	winHeight = h;
+	glutPostRedisplay();
 }
 
 void keyboard(unsigned char key, int x, int y)

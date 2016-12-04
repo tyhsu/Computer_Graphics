@@ -44,7 +44,7 @@ void idle()
 {
 	time2 = clock();
 
-	alpha += 3.14 * (time2 - time1) / CLK_TCK;
+	alpha += 3.14 * (time2 - time1) / CLK_TCK / 6;
 	dif_m[3] = (cos(alpha) + 1) / 2;
 
 	time1 = time2;
@@ -65,11 +65,11 @@ void display()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, dif_m);
 	glBegin(GL_POLYGON);
-		glNormal3f(0, 0, 1);
-		glVertex3f(-5, -5, 10);
-		glVertex3f(5, -5, 10);
-		glVertex3f(5, 5, 10);
-		glVertex3f(-5, 5, 10);
+	glNormal3f(0, 0, 1);
+	glVertex3f(-5, -5, 10);
+	glVertex3f(5, -5, 10);
+	glVertex3f(5, 5, 10);
+	glVertex3f(-5, 5, 10);
 	glEnd();
 	glutSwapBuffers();
 }
