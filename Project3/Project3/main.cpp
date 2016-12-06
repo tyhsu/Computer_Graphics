@@ -169,8 +169,9 @@ void moveCamera()
 	glLoadIdentity();
 	gluLookAt(-40 - (GLdouble)view->eye_[0], (GLdouble)view->eye_[1], (GLdouble)view->eye_[2],	// eye
 		-40 - (GLdouble)view->vat_[0], (GLdouble)view->vat_[1], (GLdouble)view->vat_[2],		// center
-		(GLdouble)view->vup_[0], (GLdouble)view->vup_[1], (GLdouble)view->vup_[2]);			// up
+		-(GLdouble)view->vup_[0], (GLdouble)view->vup_[1], (GLdouble)view->vup_[2]);			// up
 }
+
 
 void lighting()
 {
@@ -311,10 +312,10 @@ void texAfterRender(Textures* tex)
 void display()
 {
 	// clear the buffer
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);      // for use in cleaning color buffers
-	glClearDepth(1.0f);                        // Depth Buffer (it's the buffer) Setup
-	glEnable(GL_DEPTH_TEST);                   // Enables Depth Testing
-	glDepthFunc(GL_LESS);                    // The Type Of Depth Test To Do
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// for use in cleaning color buffers
+	glClearDepth(1.0f);						// Depth Buffer (it's the buffer) Setup
+	glEnable(GL_DEPTH_TEST);				// Enables Depth Testing
+	glDepthFunc(GL_LESS);					// The Type Of Depth Test To Do
 	glEnable(GL_STENCIL_TEST);
 	glClearStencil(0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
@@ -333,8 +334,7 @@ void display()
 		glStencilMask(0xff);
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		glDepthMask(GL_FALSE);
-		// Mirror
-		renderMesh(1);
+		renderMesh(1);	// Mirror
 	}
 
 	/* =========== Render polygons on the stencil mask, the window ========== */
@@ -347,14 +347,15 @@ void display()
 		// Refraction (the standing teddy bear behind the window)
 		glClear(GL_COLOR_BUFFER_BIT);
 		glFrontFace(GL_CCW);
-		// ToyStand
+		
 		glDepthMask(GL_TRUE);
-		renderMesh(3);
-		// Mirror
+		renderMesh(3);	// ToyStand
+		
 		glDepthMask(GL_FALSE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		renderMesh(1);
+		renderMesh(1);	// Mirror
+		
 		glAccum(GL_ACCUM, transmittance);
 		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
@@ -368,10 +369,8 @@ void display()
 		glPushMatrix();
 			glScalef(-1.0f, 1.0f, 1.0f);
 			glTranslatef(40.0f, 0.0f, 0.0f);
-			// Cornell_box
-			renderMesh(0);
-			// ToySit
-			renderMesh(2);
+			renderMesh(0);	// Cornell_box
+			renderMesh(2);	// ToySit
 		glPopMatrix();
 		glAccum(GL_ACCUM, reflectance);
 		glDisable(GL_STENCIL_TEST);
@@ -387,10 +386,8 @@ void display()
 		glAccum(GL_RETURN, 1.0f);
 
 		// draw other scene expect the window's area
-		// Cornell_box
-		renderMesh(0);
-		// ToySit
-		renderMesh(2);
+		renderMesh(0);	// Cornell_box
+		renderMesh(2);	// ToySit
 	}
 
 	glutSwapBuffers();
