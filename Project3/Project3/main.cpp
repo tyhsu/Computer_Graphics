@@ -32,7 +32,6 @@ double movCamUnit = 5.0, movObjUnit = 2;
 void loadTexture(const char* textureFile, size_t k);
 void loadCubeMap(char textureFiles[6][100], size_t k);
 void viewing();
-void moveCamera();
 void lighting();
 void renderMesh(int index);
 void texBeforeRender(Textures* tex);
@@ -57,7 +56,7 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	glutInitWindowSize(view->width_, view->height_);
 	glutInitWindowPosition(0, 0);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ACCUM);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_STENCIL | GLUT_ACCUM);
 	glutCreateWindow("OpenGL Project 2");
 
 	glewInit();
@@ -161,17 +160,6 @@ void viewing()
 		(GLdouble)view->vat_[0], (GLdouble)view->vat_[1], (GLdouble)view->vat_[2],			// center
 		(GLdouble)view->vup_[0], (GLdouble)view->vup_[1], (GLdouble)view->vup_[2]);			// up
 }
-
-void moveCamera()
-{
-	// viewing and modeling transformation
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(-40 - (GLdouble)view->eye_[0], (GLdouble)view->eye_[1], (GLdouble)view->eye_[2],	// eye
-		-40 - (GLdouble)view->vat_[0], (GLdouble)view->vat_[1], (GLdouble)view->vat_[2],		// center
-		-(GLdouble)view->vup_[0], (GLdouble)view->vup_[1], (GLdouble)view->vup_[2]);			// up
-}
-
 
 void lighting()
 {
@@ -345,26 +333,23 @@ void display()
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 		// Refraction (the standing teddy bear behind the window)
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glFrontFace(GL_CCW);
-		
+
 		glDepthMask(GL_TRUE);
 		renderMesh(3);	// ToyStand
-		
+
 		glDepthMask(GL_FALSE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		renderMesh(1);	// Mirror
-		
+
 		glAccum(GL_ACCUM, transmittance);
-		glDepthMask(GL_TRUE);
 		glDisable(GL_BLEND);
 
 		// Reflection (the sitting teddy bear and the walls reflected from the window)
+		glDepthMask(GL_TRUE);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//moveCamera();
-		//lighting();
-		//glScalef(1, 1, -1);
 		glFrontFace(GL_CW);
 		glPushMatrix();
 			glScalef(-1.0f, 1.0f, 1.0f);
@@ -379,9 +364,7 @@ void display()
 	/* =========== Combination =========== */
 	{
 		// return the accumulation buffer
-		glClear(GL_COLOR_BUFFER_BIT);	//???
-		//viewing();
-		//lighting();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glFrontFace(GL_CCW);
 		glAccum(GL_RETURN, 1.0f);
 
