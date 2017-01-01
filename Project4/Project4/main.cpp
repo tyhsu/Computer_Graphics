@@ -9,6 +9,7 @@
 #include "viewing.h"
 #include "light.h"
 #include "scene.h"
+#include "ShaderLoader.h"
 using namespace std;
 
 #define NUM_TEXTURE 20
@@ -26,8 +27,11 @@ size_t selectObjIndex = 0;
 int preMouseX = 250, preMouseY = 250;
 double movCamUnit = 5.0, movObjUnit = 0.5;
 
+GLhandleARB phongShader;
+
 void loadTexture(const char* textureFile, size_t k);
 void loadCubeMap(char textureFiles[6][100], size_t k);
+void LoadShaders();
 void viewing();
 void lighting();
 void texBeforeRender(Textures tex);
@@ -139,6 +143,16 @@ void loadCubeMap(char textureFiles[6][100], size_t k)
 	for (size_t i = 0; i<6; i++) {
 		FreeImage_Unload(t32BitsImage[i]);
 		FreeImage_Unload(tImage[i]);
+	}
+}
+
+void LoadShaders()
+{
+	phongShader = glCreateProgram();
+	if (phongShader != 0)
+	{
+		ShaderLoad(phongShader, "../Project4/PhongShading.vert", GL_VERTEX_SHADER);
+		ShaderLoad(phongShader, "../Project4/PhongShading.frag", GL_FRAGMENT_SHADER);
 	}
 }
 
