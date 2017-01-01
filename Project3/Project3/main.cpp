@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 	glutInitWindowSize(view->width_, view->height_);
 	glutInitWindowPosition(0, 0);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_STENCIL | GLUT_ACCUM);
-	glutCreateWindow("OpenGL Project 2");
+	glutCreateWindow("OpenGL Project 3");
 
 	glewInit();
 	FreeImage_Initialise();
