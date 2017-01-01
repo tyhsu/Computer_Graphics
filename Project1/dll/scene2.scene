@@ -1,0 +1,6 @@
+model redbox.obj 3.0 1.0 1.0 0.0 0.0 1.0 0.0 0.0 0.0 -1.0
+model yellowbox.obj 3.0 1.0 1.0 0.0 0.0 1.0 0.0 0.2 0.0 0.0
+model bluebox.obj 3.0 1.0 1.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0
+model redbox.obj 3.0 1.0 1.0 85.0 0.0 1.0 0.0 1.0 1.0 0.0
+model yellowbox.obj 3.0 1.0 1.0 90.0 0.0 1.0 0.0 -1.0 1.0 0.0
+model bluebox.obj 3.0 1.0 1.0 10.0 0.0 1.0 0.0 0.0 2.0 0.0
