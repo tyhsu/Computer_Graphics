@@ -31,7 +31,7 @@ GLhandleARB phongShader;
 
 void loadTexture(const char* textureFile, size_t k);
 void loadCubeMap(char textureFiles[6][100], size_t k);
-void LoadShaders();
+void loadShaders();
 void viewing();
 void lighting();
 void texBeforeRender(Textures tex);
@@ -82,6 +82,12 @@ int main(int argc, char** argv)
 		}
 	}
 	cout << endl << "-------------------- finish loading textures --------------------" << endl;
+
+	GLenum glew_error;
+	if ((glew_error = glewInit()) != GLEW_OK)
+		return -1;
+	loadShaders();
+	cout << endl << "-------------------- finish loading shaders --------------------" << endl;
 
 	FreeImage_DeInitialise();
 	glutDisplayFunc(display);
@@ -146,7 +152,7 @@ void loadCubeMap(char textureFiles[6][100], size_t k)
 	}
 }
 
-void LoadShaders()
+void loadShaders()
 {
 	phongShader = glCreateProgram();
 	if (phongShader != 0)
@@ -206,7 +212,7 @@ void texBeforeRender(Textures tex)
 		cout << "single-texture:" << tex.imageList_[0].texID_ << endl;
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, texObject[tex.imageList_[0].texID_]);
-		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.5f);
 	}
@@ -231,7 +237,7 @@ void texBeforeRender(Textures tex)
 		glEnable(GL_TEXTURE_GEN_R);
 		glEnable(GL_TEXTURE_CUBE_MAP);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texObject[tex.texID_]);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	}
 }
 
@@ -271,11 +277,12 @@ void display()
 	glClearDepth(1.0f);                        // Depth Buffer (it's the buffer) Setup
 	glEnable(GL_DEPTH_TEST);                   // Enables Depth Testing
 	glDepthFunc(GL_LEQUAL);                    // The Type Of Depth Test To Do
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// this makes the scene black and clears the z buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// this makes the scene black and clears the z buffer
 
 	viewing();
 	// note that light should be set after gluLookAt
 	lighting();
+	glUseProgram(phongShader);
 
 	size_t lastTexIndex = -1;
 	Textures currTex;
