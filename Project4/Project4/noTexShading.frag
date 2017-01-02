@@ -4,6 +4,7 @@ in vec3 vertexEyeSpace;
 in vec3 normal;
 
 void main(){
+	// Phong shader
     vec4 Ia, Id, Is;
     vec4 finalFragColor = vec4(0.0f);
     vec3 N = normalize(normal);

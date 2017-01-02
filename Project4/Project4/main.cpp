@@ -27,7 +27,7 @@ size_t selectObjIndex = 0;
 int preMouseX = 250, preMouseY = 250;
 double movCamUnit = 5.0, movObjUnit = 0.5;
 
-GLhandleARB phongShader;
+GLhandleARB texShader, noTexShader;
 
 void loadTexture(const char* textureFile, size_t k);
 void loadCubeMap(char textureFiles[6][100], size_t k);
@@ -81,6 +81,7 @@ int main(int argc, char** argv)
 			loadCubeMap(iList, texNo++);
 		}
 	}
+	FreeImage_DeInitialise();
 	cout << endl << "-------------------- finish loading textures --------------------" << endl;
 
 	GLenum glew_error;
@@ -89,7 +90,6 @@ int main(int argc, char** argv)
 	loadShaders();
 	cout << endl << "-------------------- finish loading shaders --------------------" << endl;
 
-	FreeImage_DeInitialise();
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
@@ -154,11 +154,18 @@ void loadCubeMap(char textureFiles[6][100], size_t k)
 
 void loadShaders()
 {
-	phongShader = glCreateProgram();
-	if (phongShader != 0)
+	texShader = glCreateProgram();
+	if (texShader != 0)
 	{
-		ShaderLoad(phongShader, "../Project4/PhongShading.vert", GL_VERTEX_SHADER);
-		ShaderLoad(phongShader, "../Project4/PhongShading.frag", GL_FRAGMENT_SHADER);
+		ShaderLoad(texShader, "../Project4/texShading.vert", GL_VERTEX_SHADER);
+		ShaderLoad(texShader, "../Project4/texShading.frag", GL_FRAGMENT_SHADER);
+	}
+
+	noTexShader = glCreateProgram();
+	if (noTexShader != 0)
+	{
+		ShaderLoad(noTexShader, "../Project4/texShading.vert", GL_VERTEX_SHADER);
+		ShaderLoad(noTexShader, "../Project4/noTexShading.frag", GL_FRAGMENT_SHADER);
 	}
 }
 
@@ -207,9 +214,13 @@ void texBeforeRender(Textures tex)
 {
 	texTechnique = tex.technique_;
 	if (texTechnique == 0) {		// no-texture
+		cout << "no-texture" << endl;
+		glUseProgram(noTexShader);
 	}
 	else if (texTechnique == 1) {	// single-texture
 		cout << "single-texture:" << tex.imageList_[0].texID_ << endl;
+		glUseProgram(texShader);
+
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, texObject[tex.imageList_[0].texID_]);
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -218,6 +229,8 @@ void texBeforeRender(Textures tex)
 	}
 	else if (texTechnique == 2) {	// multi-texture
 		cout << "multi-texture: " << tex.imageList_[0].texID_ << " " << tex.imageList_[1].texID_ << endl;
+		glUseProgram(texShader);
+
 		for (size_t i = 0; i < 2; i++) {
 			GLenum glTexture = GL_TEXTURE0 + i;
 			glActiveTexture(glTexture);
@@ -229,6 +242,8 @@ void texBeforeRender(Textures tex)
 	}
 	else {							// cube-map
 		cout << "cube-map: " << tex.texID_ << endl;
+		glUseProgram(texShader);
+
 		glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
 		glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
 		glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
@@ -282,7 +297,6 @@ void display()
 	viewing();
 	// note that light should be set after gluLookAt
 	lighting();
-	glUseProgram(phongShader);
 
 	size_t lastTexIndex = -1;
 	Textures currTex;
