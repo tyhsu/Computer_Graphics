@@ -26,11 +26,13 @@ Scene *scene;
 int winWidth, winHeight;
 int texTechnique = 0;
 double rSide[3], forth[3];
-size_t selectObjIndex = 0;
 int preMouseX = 250, preMouseY = 250;
-double movCamUnit = 5.0, movObjUnit = 0.5;
+double movCamUnit = 5.0f;
 
 GLhandleARB PhongShaderProgram, HairSimuProgram;
+double segmentLen = 0.5f, gravityY = -0.1f;
+int segmentNum = 15;
+float projectMatrix[16];
 
 void loadTexture(const char* textureFile, size_t k);
 void loadCubeMap(char textureFiles[6][100], size_t k);
@@ -43,7 +45,6 @@ void texAfterRender(Textures tex);
 void display();
 void reshape(GLsizei w, GLsizei h);
 void keyboard(unsigned char key, int x, int y);
-void drag(int x, int y);
 
 int main(int argc, char** argv)
 {
@@ -94,7 +95,6 @@ int main(int argc, char** argv)
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
-	glutMotionFunc(drag);
 	glutMainLoop();
 
 	return 0;
@@ -164,7 +164,7 @@ void loadShaders()
 	HairSimuProgram = glCreateProgram();
 	if (HairSimuProgram != 0) {
 		ShaderLoad(HairSimuProgram, "../Project4/HairSimulation.vert", GL_VERTEX_SHADER);
-		//ShaderLoad(HairSimuProgram, "../Project4/HairSimulation.geom", GL_GEOMETRY_SHADER);
+		ShaderLoad(HairSimuProgram, "../Project4/HairSimulation.geom", GL_GEOMETRY_SHADER);
 		ShaderLoad(HairSimuProgram, "../Project4/HairSimulation.frag", GL_FRAGMENT_SHADER);
 	}
 }
@@ -340,6 +340,8 @@ void display()
 	// note that light should be set after gluLookAt
 	lighting();
 
+	glGetFloatv(GL_PROJECTION_MATRIX, projectMatrix);
+
 	// render Sphere.obj
 	glUseProgram(PhongShaderProgram);
 	texBeforeRender(scene->texList_[0]);
@@ -348,6 +350,10 @@ void display()
 
 	// render Scalp.obj
 	glUseProgram(HairSimuProgram);
+	glUniform1f(glGetUniformLocation(HairSimuProgram, "segmentLen"), segmentLen);
+	glUniform1i(glGetUniformLocation(HairSimuProgram, "segmentNum"), segmentNum);
+	glUniform1f(glGetUniformLocation(HairSimuProgram, "gravityY"), gravityY);
+	glUniformMatrix4fv(glGetUniformLocation(HairSimuProgram, "projectMatrix"), 1, false, projectMatrix);
 	texBeforeRender(scene->texList_[1]);
 	renderMesh(1);
 	texAfterRender(scene->texList_[1]);
@@ -387,39 +393,41 @@ void keyboard(unsigned char key, int x, int y)
 			view->eye_[i] -= forth[i];
 		glutPostRedisplay();
 	}
-	else if (key == 'd') {	//move right
+	else if (key == 'd') {	// move right
 		printf("keyboard: %c\n", key);
 		for (size_t i = 0; i < 3; i++)
 			view->eye_[i] += rSide[i];
 		glutPostRedisplay();
 	}
-	else if (key >= '1' && key <= '9') {	// select n-th object
-		selectObjIndex = key - '1';
-		if (selectObjIndex >= scene->modelTotal_)
-			selectObjIndex = scene->modelTotal_ - 1;
-		cout << "selected object: " << selectObjIndex + 1 << endl;
+	else if (key == 'r') {	// increase the length of segment
+		printf("keyboard: %c\n", key);
+		segmentLen += 0.1f;
+		glutPostRedisplay();
+	}
+	else if (key == 'f') {	// decrease the length of segment
+		printf("keyboard: %c\n", key);
+		segmentLen -= 0.1f;
+		glutPostRedisplay();
+	}
+	else if (key == 't') {	// increase the number of segment
+		printf("keyboard: %c\n", key);
+		segmentNum += 1;
+		glutPostRedisplay();
+	}
+	else if (key == 'g') {	// decrease the number of segment
+		printf("keyboard: %c\n", key);
+		segmentNum -= 1;
+		glutPostRedisplay();
+	}
+	else if (key == 'y') {	// increase the y of gravity vector
+		printf("keyboard: %c\n", key);
+		gravityY += 0.1f;
+		glutPostRedisplay();
+	}
+	else if (key == 'h') {	// decrease the y of gravity vector
+		printf("keyboard: %c\n", key);
+		gravityY -= 0.1f;
+		glutPostRedisplay();
 	}
 }
 
-void drag(int x, int y)
-{
-	if (x > preMouseX) {		// right
-		scene->modelList_[selectObjIndex].translate_[0] += movObjUnit;
-		cout << "moving object " << selectObjIndex + 1 << " right" << endl;
-	}
-	else if (x < preMouseX) {	// left
-		scene->modelList_[selectObjIndex].translate_[0] -= movObjUnit;
-		cout << "moving object " << selectObjIndex + 1 << " left" << endl;
-	}
-	if (y < preMouseY) {		// up
-		scene->modelList_[selectObjIndex].translate_[1] += movObjUnit;
-		cout << "moving object " << selectObjIndex + 1 << " up" << endl;
-	}
-	else if (y > preMouseY) {	// down
-		scene->modelList_[selectObjIndex].translate_[1] -= movObjUnit;
-		cout << "moving object " << selectObjIndex + 1 << " down" << endl;
-	}
-	preMouseX = x;
-	preMouseY = y;
-	glutPostRedisplay();
-}
