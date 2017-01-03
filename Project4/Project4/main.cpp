@@ -347,8 +347,8 @@ void display()
 	texAfterRender(scene->texList_[0]);
 
 	// render Scalp.obj
-	texBeforeRender(scene->texList_[1]);
 	glUseProgram(HairSimuProgram);
+	texBeforeRender(scene->texList_[1]);
 	renderMesh(1);
 	texAfterRender(scene->texList_[1]);
 	glutSwapBuffers();

@@ -8,7 +8,7 @@ in Vertex{
 }vertex[];
 
 void main(){
-    float length = 2.0f;
+    float length = 10.0f;
 
     for(int i = 0; i < gl_in.length(); i++){
         //start point
