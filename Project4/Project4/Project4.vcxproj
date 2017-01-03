@@ -145,9 +145,11 @@
     <ClInclude Include="viewing.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="noTexShading.frag" />
-    <None Include="texShading.frag" />
-    <None Include="texShading.vert" />
+    <None Include="HairSimulation.frag" />
+    <None Include="PhongShading.frag" />
+    <None Include="HairSimulation.vert" />
+    <None Include="HairSimulation.geom" />
+    <None Include="PhongShading.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

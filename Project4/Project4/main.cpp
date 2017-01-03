@@ -15,6 +15,9 @@ using namespace std;
 #define NUM_TEXTURE 20
 unsigned int texObject[NUM_TEXTURE];
 
+string objFiles[] = { "Sphere.obj", "Scalp.obj" };
+size_t objNum = 2;
+
 vector<Mesh> objects;
 View *view;
 Light *light;
@@ -27,7 +30,7 @@ size_t selectObjIndex = 0;
 int preMouseX = 250, preMouseY = 250;
 double movCamUnit = 5.0, movObjUnit = 0.5;
 
-GLhandleARB texShader, noTexShader;
+GLhandleARB PhongShaderProgram, HairSimuProgram;
 
 void loadTexture(const char* textureFile, size_t k);
 void loadCubeMap(char textureFiles[6][100], size_t k);
@@ -35,6 +38,7 @@ void loadShaders();
 void viewing();
 void lighting();
 void texBeforeRender(Textures tex);
+void renderMesh(int index);
 void texAfterRender(Textures tex);
 void display();
 void reshape(GLsizei w, GLsizei h);
@@ -43,9 +47,6 @@ void drag(int x, int y);
 
 int main(int argc, char** argv)
 {
-	string objFiles[] = { "Scalp.obj", "Sphere.obj" };
-	size_t objNum = 2;
-
 	view = new View("Peter.view");
 	light = new Light("Peter.light");
 	scene = new Scene("Peter.scene");
@@ -154,18 +155,17 @@ void loadCubeMap(char textureFiles[6][100], size_t k)
 
 void loadShaders()
 {
-	texShader = glCreateProgram();
-	if (texShader != 0)
-	{
-		ShaderLoad(texShader, "../Project4/texShading.vert", GL_VERTEX_SHADER);
-		ShaderLoad(texShader, "../Project4/texShading.frag", GL_FRAGMENT_SHADER);
+	PhongShaderProgram = glCreateProgram();
+	if (PhongShaderProgram != 0) {
+		ShaderLoad(PhongShaderProgram, "../Project4/PhongShading.vert", GL_VERTEX_SHADER);
+		ShaderLoad(PhongShaderProgram, "../Project4/PhongShading.frag", GL_FRAGMENT_SHADER);
 	}
 
-	noTexShader = glCreateProgram();
-	if (noTexShader != 0)
-	{
-		ShaderLoad(noTexShader, "../Project4/texShading.vert", GL_VERTEX_SHADER);
-		ShaderLoad(noTexShader, "../Project4/noTexShading.frag", GL_FRAGMENT_SHADER);
+	HairSimuProgram = glCreateProgram();
+	if (HairSimuProgram != 0) {
+		ShaderLoad(HairSimuProgram, "../Project4/HairSimulation.vert", GL_VERTEX_SHADER);
+		//ShaderLoad(HairSimuProgram, "../Project4/HairSimulation.geom", GL_GEOMETRY_SHADER);
+		ShaderLoad(HairSimuProgram, "../Project4/HairSimulation.frag", GL_FRAGMENT_SHADER);
 	}
 }
 
@@ -215,11 +215,9 @@ void texBeforeRender(Textures tex)
 	texTechnique = tex.technique_;
 	if (texTechnique == 0) {		// no-texture
 		cout << "no-texture" << endl;
-		glUseProgram(noTexShader);
 	}
 	else if (texTechnique == 1) {	// single-texture
 		cout << "single-texture:" << tex.imageList_[0].texID_ << endl;
-		glUseProgram(texShader);
 
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, texObject[tex.imageList_[0].texID_]);
@@ -229,7 +227,6 @@ void texBeforeRender(Textures tex)
 	}
 	else if (texTechnique == 2) {	// multi-texture
 		cout << "multi-texture: " << tex.imageList_[0].texID_ << " " << tex.imageList_[1].texID_ << endl;
-		glUseProgram(texShader);
 
 		for (size_t i = 0; i < 2; i++) {
 			GLenum glTexture = GL_TEXTURE0 + i;
@@ -242,7 +239,6 @@ void texBeforeRender(Textures tex)
 	}
 	else {							// cube-map
 		cout << "cube-map: " << tex.texID_ << endl;
-		glUseProgram(texShader);
 
 		glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
 		glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
@@ -254,6 +250,52 @@ void texBeforeRender(Textures tex)
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texObject[tex.texID_]);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	}
+}
+
+void renderMesh(int index)
+{
+	glPushMatrix();
+
+	Model* model = &scene->searchModel(objFiles[index]);
+	glTranslated((GLdouble)model->translate_[0], (GLdouble)model->translate_[1], (GLdouble)model->translate_[2]);
+	glRotated((GLdouble)model->angle_, (GLdouble)model->rotate_[0], (GLdouble)model->rotate_[1], (GLdouble)model->rotate_[2]);
+	glScaled((GLdouble)model->scale_[0], (GLdouble)model->scale_[1], (GLdouble)model->scale_[2]);
+
+	Mesh* obj = &objects[index];
+	// for each face in the mesh object
+	int lastMaterial = -1;
+	for (size_t i = 0; i < obj->fTotal_; ++i) {
+		// set material property if this face used different material
+		if (lastMaterial != obj->faceList_[i].m) {
+			lastMaterial = (int)obj->faceList_[i].m;
+			glMaterialfv(GL_FRONT, GL_AMBIENT, obj->matList_[lastMaterial].Ka);
+			glMaterialfv(GL_FRONT, GL_DIFFUSE, obj->matList_[lastMaterial].Kd);
+			glMaterialfv(GL_FRONT, GL_SPECULAR, obj->matList_[lastMaterial].Ks);
+			glMaterialfv(GL_FRONT, GL_SHININESS, &obj->matList_[lastMaterial].Ns);
+			glMaterialfv(GL_FRONT, GL_EMISSION, obj->matList_[lastMaterial].Ke);
+
+			//you can obtain the texture name by obj->matList_[lastMaterial].map_Kd
+			//load them once in the main function before mainloop
+			//bind them in display function here
+		}
+
+		glBegin(GL_TRIANGLES);
+		// for each vertex in the face (triangle)
+		for (size_t j = 0; j < 3; ++j) {
+			if (texTechnique == 1 || texTechnique == 3)			// single-texture or cube-map
+				glTexCoord2f(obj->tList_[obj->faceList_[i][j].t].ptr[0], obj->tList_[obj->faceList_[i][j].t].ptr[1]);
+			else if (texTechnique == 2) {	// multi-texture
+				for (size_t k = 0; k < 2; k++) {
+					GLenum glTexture = GL_TEXTURE0 + k;
+					glMultiTexCoord2fv(glTexture, obj->tList_[obj->faceList_[i][j].t].ptr);
+				}
+			}
+			glNormal3fv(obj->nList_[obj->faceList_[i][j].n].ptr);
+			glVertex3fv(obj->vList_[obj->faceList_[i][j].v].ptr);
+		}
+		glEnd();
+	}
+	glPopMatrix();
 }
 
 void texAfterRender(Textures tex)
@@ -298,72 +340,17 @@ void display()
 	// note that light should be set after gluLookAt
 	lighting();
 
-	size_t lastTexIndex = -1;
-	Textures currTex;
-	// for each model in the scene file
-	for (vector<Model>::iterator it = scene->modelList_.begin(); it != scene->modelList_.end(); it++) {
-		glPushMatrix();
-		// enable and bind the texture if this model used different texture
-		if (lastTexIndex != it->texIndex_) {
-			if (lastTexIndex != -1)
-				texAfterRender(currTex);
-			lastTexIndex = it->texIndex_;
-			currTex = scene->texList_[lastTexIndex];
-			texBeforeRender(currTex);
-		}
+	// render Sphere.obj
+	glUseProgram(PhongShaderProgram);
+	texBeforeRender(scene->texList_[0]);
+	renderMesh(0);
+	texAfterRender(scene->texList_[0]);
 
-		// find the selected mesh in the scene file
-		Mesh* obj = nullptr;
-		for (vector<Mesh>::iterator jt = objects.begin(); jt != objects.end(); jt++)
-			if (jt->objFile_ == it->objFile_) {
-				obj = &(*jt);
-				break;
-			}
-		if (obj == nullptr) {
-			cout << "Don't have " << it->objFile_ << " in the object files" << endl;
-			continue;
-		}
-
-		glTranslated((GLdouble)it->translate_[0], (GLdouble)it->translate_[1], (GLdouble)it->translate_[2]);
-		glRotated((GLdouble)it->angle_, (GLdouble)it->rotate_[0], (GLdouble)it->rotate_[1], (GLdouble)it->rotate_[2]);
-		glScaled((GLdouble)it->scale_[0], (GLdouble)it->scale_[1], (GLdouble)it->scale_[2]);
-
-		// for each face in the mesh object
-		int lastMaterial = -1;
-		for (size_t i = 0; i < obj->fTotal_; ++i) {
-			// set material property if this face used different material
-			if (lastMaterial != obj->faceList_[i].m) {
-				lastMaterial = (int)obj->faceList_[i].m;
-				glMaterialfv(GL_FRONT, GL_AMBIENT, obj->matList_[lastMaterial].Ka);
-				glMaterialfv(GL_FRONT, GL_DIFFUSE, obj->matList_[lastMaterial].Kd);
-				glMaterialfv(GL_FRONT, GL_SPECULAR, obj->matList_[lastMaterial].Ks);
-				glMaterialfv(GL_FRONT, GL_SHININESS, &obj->matList_[lastMaterial].Ns);
-
-				//you can obtain the texture name by obj->matList_[lastMaterial].map_Kd
-				//load them once in the main function before mainloop
-				//bind them in display function here
-			}
-
-			glBegin(GL_TRIANGLES);
-			// for each vertex in the face (triangle)
-			for (size_t j = 0; j < 3; ++j) {
-				if (texTechnique == 1 || texTechnique == 3)			// single-texture or cube-map
-					glTexCoord2f(obj->tList_[obj->faceList_[i][j].t].ptr[0], obj->tList_[obj->faceList_[i][j].t].ptr[1]);
-				else if (texTechnique == 2) {	// multi-texture
-					for (size_t k = 0; k < 2; k++) {
-						GLenum glTexture = GL_TEXTURE0 + k;
-						glMultiTexCoord2fv(glTexture, obj->tList_[obj->faceList_[i][j].t].ptr);
-					}
-				}
-				glNormal3fv(obj->nList_[obj->faceList_[i][j].n].ptr);
-				glVertex3fv(obj->vList_[obj->faceList_[i][j].v].ptr);
-			}
-			glEnd();
-		}
-		glPopMatrix();
-	}
-
-	texAfterRender(scene->texList_[lastTexIndex]);
+	// render Scalp.obj
+	texBeforeRender(scene->texList_[1]);
+	glUseProgram(HairSimuProgram);
+	renderMesh(1);
+	texAfterRender(scene->texList_[1]);
 	glutSwapBuffers();
 }
 
