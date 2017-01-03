@@ -30,8 +30,8 @@ int preMouseX = 250, preMouseY = 250;
 double movCamUnit = 5.0f;
 
 GLhandleARB PhongShaderProgram, HairSimuProgram;
-double segmentLen = 0.5f, gravityY = -0.1f;
 int segmentNum = 15;
+double segmentLen = 0.5f, gravityY = -0.1f;
 float projectMatrix[16];
 
 void loadTexture(const char* textureFile, size_t k);
@@ -402,31 +402,39 @@ void keyboard(unsigned char key, int x, int y)
 	else if (key == 'r') {	// increase the length of segment
 		printf("keyboard: %c\n", key);
 		segmentLen += 0.1f;
+		printf("hair length: %.1f\n", segmentLen);
 		glutPostRedisplay();
 	}
 	else if (key == 'f') {	// decrease the length of segment
 		printf("keyboard: %c\n", key);
 		segmentLen -= 0.1f;
+		if (segmentLen < 0.0) segmentLen = 0.0;
+		printf("hair length: %.1f\n", segmentLen);
 		glutPostRedisplay();
 	}
 	else if (key == 't') {	// increase the number of segment
 		printf("keyboard: %c\n", key);
 		segmentNum += 1;
+		printf("hair number: %d\n", segmentNum);
 		glutPostRedisplay();
 	}
 	else if (key == 'g') {	// decrease the number of segment
 		printf("keyboard: %c\n", key);
 		segmentNum -= 1;
+		if (segmentNum < 0) segmentNum = 0;
+		printf("hair number: %d\n", segmentNum);
 		glutPostRedisplay();
 	}
 	else if (key == 'y') {	// increase the y of gravity vector
 		printf("keyboard: %c\n", key);
 		gravityY += 0.1f;
+		printf("gravity: (0.0, %.1f, 0.0)\n", gravityY);
 		glutPostRedisplay();
 	}
 	else if (key == 'h') {	// decrease the y of gravity vector
 		printf("keyboard: %c\n", key);
 		gravityY -= 0.1f;
+		printf("gravity: (0.0, %.1f, 0.0)\n", gravityY);
 		glutPostRedisplay();
 	}
 }

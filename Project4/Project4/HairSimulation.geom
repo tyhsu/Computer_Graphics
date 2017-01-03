@@ -6,22 +6,31 @@ uniform float gravityY;
 uniform mat4 projectMatrix;
 
 layout(triangles) in;
-layout(line_strip, max_vertices=6) out;
+layout(line_strip, max_vertices=256) out;
 
-in Vertex{
+in Vertex {
     vec3 normal;
 }vertex[];
+//out int segmentIndex;
 
-void main(){
-    for(int i = 0; i < gl_in.length(); i++){
-        //start point
-        gl_Position = projectMatrix * gl_in[i].gl_Position;
-        EmitVertex();
+vec4 gravity = vec4(0.0f, gravityY, 0.0f, 0.0f);
 
-        //end point
-        gl_Position = projectMatrix * (gl_in[i].gl_Position + vec4(vertex[i].normal, 0.0f) * segmentLen);
-        EmitVertex();
+void main() {
+    for (int i = 0; i < gl_in.length(); i++) {
+		vec4 preEndpoint = projectMatrix * gl_in[i].gl_Position;
+		vec4 normal = projectMatrix * vec4(vertex[i].normal, 0.0f);
+		for (int segmentIndex = 0; segmentIndex < segmentNum; segmentIndex++) {
+			//start point
+			gl_Position = preEndpoint;
+			EmitVertex();
 
-        EndPrimitive();
+			//end point
+			gl_Position = preEndpoint + normalize(normal + gravity) * segmentLen;
+			EmitVertex();
+
+			EndPrimitive();
+			preEndpoint = gl_Position;
+			normal = normal + gravity;
+		}
     }
 }
