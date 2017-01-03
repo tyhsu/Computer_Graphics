@@ -3,6 +3,7 @@
 out Vertex {
     vec3 normal;
 };
+out float segmentIndex;
 
 void main() {
     //both transfer from object space to eye space

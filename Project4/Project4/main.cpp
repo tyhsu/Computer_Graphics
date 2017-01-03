@@ -342,20 +342,26 @@ void display()
 
 	glGetFloatv(GL_PROJECTION_MATRIX, projectMatrix);
 
-	// render Sphere.obj
+	// render Sphere.obj (head)
 	glUseProgram(PhongShaderProgram);
 	texBeforeRender(scene->texList_[0]);
 	renderMesh(0);
 	texAfterRender(scene->texList_[0]);
 
-	// render Scalp.obj
+	// render Scalp.obj (hair)
+	glDepthMask(GL_FALSE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glUseProgram(HairSimuProgram);
 	glUniform1f(glGetUniformLocation(HairSimuProgram, "segmentLen"), segmentLen);
 	glUniform1i(glGetUniformLocation(HairSimuProgram, "segmentNum"), segmentNum);
 	glUniform1f(glGetUniformLocation(HairSimuProgram, "gravityY"), gravityY);
 	glUniformMatrix4fv(glGetUniformLocation(HairSimuProgram, "projectMatrix"), 1, false, projectMatrix);
+	glEnable(GL_LINE_SMOOTH);
 	texBeforeRender(scene->texList_[1]);
 	renderMesh(1);
+	glDisable(GL_BLEND);
+	glDepthMask(GL_TRUE);
 	texAfterRender(scene->texList_[1]);
 	glutSwapBuffers();
 }

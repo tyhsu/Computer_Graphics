@@ -11,7 +11,7 @@ layout(line_strip, max_vertices=256) out;
 in Vertex {
     vec3 normal;
 }vertex[];
-//out int segmentIndex;
+out float segmentIndex;
 
 vec4 gravity = vec4(0.0f, gravityY, 0.0f, 0.0f);
 
@@ -19,7 +19,8 @@ void main() {
     for (int i = 0; i < gl_in.length(); i++) {
 		vec4 preEndpoint = projectMatrix * gl_in[i].gl_Position;
 		vec4 normal = projectMatrix * vec4(vertex[i].normal, 0.0f);
-		for (int segmentIndex = 0; segmentIndex < segmentNum; segmentIndex++) {
+		segmentIndex = 0.0;
+		for (int j = 0; j < segmentNum; j++) {
 			//start point
 			gl_Position = preEndpoint;
 			EmitVertex();
@@ -31,6 +32,7 @@ void main() {
 			EndPrimitive();
 			preEndpoint = gl_Position;
 			normal = normal + gravity;
+			segmentIndex += 1;
 		}
     }
 }
