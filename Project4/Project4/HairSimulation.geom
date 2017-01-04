@@ -2,7 +2,7 @@
 
 uniform float segmentLen;
 uniform int segmentNum;
-uniform float gravityY;
+uniform vec4 gravity;
 uniform mat4 projectMatrix;
 
 layout(triangles) in;
@@ -12,8 +12,6 @@ in Vertex {
     vec3 normal;
 }vertex[];
 out float segmentIndex;
-
-vec4 gravity = vec4(0.0f, gravityY, 0.0f, 0.0f);
 
 void main() {
     for (int i = 0; i < gl_in.length(); i++) {

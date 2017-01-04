@@ -214,20 +214,16 @@ void texBeforeRender(Textures tex)
 {
 	texTechnique = tex.technique_;
 	if (texTechnique == 0) {		// no-texture
-		cout << "no-texture" << endl;
+		//cout << "no-texture" << endl;
 	}
 	else if (texTechnique == 1) {	// single-texture
-		cout << "single-texture:" << tex.imageList_[0].texID_ << endl;
-
+		//cout << "single-texture:" << tex.imageList_[0].texID_ << endl;
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, texObject[tex.imageList_[0].texID_]);
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.5f);
 	}
 	else if (texTechnique == 2) {	// multi-texture
-		cout << "multi-texture: " << tex.imageList_[0].texID_ << " " << tex.imageList_[1].texID_ << endl;
-
+		//cout << "multi-texture: " << tex.imageList_[0].texID_ << " " << tex.imageList_[1].texID_ << endl;
 		for (size_t i = 0; i < 2; i++) {
 			GLenum glTexture = GL_TEXTURE0 + i;
 			glActiveTexture(glTexture);
@@ -238,8 +234,7 @@ void texBeforeRender(Textures tex)
 		}
 	}
 	else {							// cube-map
-		cout << "cube-map: " << tex.texID_ << endl;
-
+		//cout << "cube-map: " << tex.texID_ << endl;
 		glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
 		glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
 		glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
@@ -344,20 +339,21 @@ void display()
 
 	// render Sphere.obj (head)
 	glUseProgram(PhongShaderProgram);
+	glUniform1i(glGetUniformLocation(PhongShaderProgram, "colorTexture"), 0);
 	texBeforeRender(scene->texList_[0]);
 	renderMesh(0);
 	texAfterRender(scene->texList_[0]);
 
 	// render Scalp.obj (hair)
 	glDepthMask(GL_FALSE);
+	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glUseProgram(HairSimuProgram);
 	glUniform1f(glGetUniformLocation(HairSimuProgram, "segmentLen"), segmentLen);
 	glUniform1i(glGetUniformLocation(HairSimuProgram, "segmentNum"), segmentNum);
-	glUniform1f(glGetUniformLocation(HairSimuProgram, "gravityY"), gravityY);
+	glUniform4f(glGetUniformLocation(HairSimuProgram, "gravity"), 0.0f, gravityY, 0.0f, 0.0f);
 	glUniformMatrix4fv(glGetUniformLocation(HairSimuProgram, "projectMatrix"), 1, false, projectMatrix);
-	glEnable(GL_LINE_SMOOTH);
 	texBeforeRender(scene->texList_[1]);
 	renderMesh(1);
 	glDisable(GL_BLEND);
