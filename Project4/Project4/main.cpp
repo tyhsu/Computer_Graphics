@@ -352,7 +352,7 @@ void display()
 	glUseProgram(HairSimuProgram);
 	glUniform1f(glGetUniformLocation(HairSimuProgram, "segmentLen"), segmentLen);
 	glUniform1i(glGetUniformLocation(HairSimuProgram, "segmentNum"), segmentNum);
-	glUniform4f(glGetUniformLocation(HairSimuProgram, "gravity"), 0.0f, gravityY, 0.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(HairSimuProgram, "gravity"), 0.0f, gravityY, 0.0f);
 	glUniformMatrix4fv(glGetUniformLocation(HairSimuProgram, "projectMatrix"), 1, false, projectMatrix);
 	texBeforeRender(scene->texList_[1]);
 	renderMesh(1);
